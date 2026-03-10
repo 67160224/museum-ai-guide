@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artwork</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+<div class="card">
+
+    <div id="loading">⏳ Loading...</div>
+
+    <div id="error" class="error"></div>
+
+    <img id="image">
+
+    <h1 id="title"></h1>
+
+    <h3 id="artist"></h3>
+
+    <p id="description"></p>
+
+
+    <h3>🔊 Audio</h3>
+
+    <button onclick="playTTS('th-TH')">
+        ไทย
+    </button>
+
+    <button onclick="playTTS('en-US')">
+        English
+    </button>
+
+    <button onclick="playTTS('zh-CN')">
+        中文
+    </button>
+
+    <hr>
+
+
+    <h3>🤖 Ask AI</h3>
+
+    <div class="chat-box" id="chatBox"></div>
+
+    <input
+        id="question"
+        placeholder="ถามคำถาม..."
+    >
+
+    <button onclick="sendQuestion()">
+        Send
+    </button>
+
+</div>
+
+
+<script src="js/ai-voice.js"></script>
+<script src="js/ai-chat.js"></script>
+<script src="js/ai-system.js"></script>
+
+</body>
+</html>

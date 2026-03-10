@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Museum AI Guide</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+<div class="wrapper">
+<div class="main-card">
+
+    <!-- TOP BAR -->
+    <div class="d-flex justify-content-between align-items-center">
+
+        <h5>🌐 Creative Handicraft</h5>
+
+        <select class="form-select w-auto" id="languageSelect">
+            <option value="th">TH</option>
+            <option value="en">EN</option>
+            <option value="cn">CN</option>
+        </select>
+
+    </div>
+
+
+    <!-- TITLE -->
+    <div class="title">
+        <h1>Museum AI Guide</h1>
+        <p id="subTitle">นิทรรศการดิจิทัลอัจฉริยะ</p>
+    </div>
+
+
+    <!-- SEARCH -->
+    <div class="input-group mt-3">
+
+        <input
+            type="text"
+            id="artworkId"
+            class="form-control"
+            placeholder="ใส่รหัสผลงาน"
+        >
+
+        <button id="searchBtn" class="btn btn-primary">
+            🔍 ค้นหา
+        </button>
+
+        <button id="scanBtn" class="btn btn-success">
+            📷 Scan QR
+        </button>
+
+    </div>
+
+
+    <!-- RESULT -->
+    <div id="result" class="text-center mt-4" style="display:none;">
+
+        <img id="image" class="img-fluid mb-3">
+
+        <h2 id="title"></h2>
+
+        <h5 id="artist"></h5>
+
+        <p id="description"></p>
+
+    </div>
+
+    <div id="error" class="text-danger mt-3 text-center"></div>
+
+    <hr>
+
+
+    <!-- AI CHAT -->
+    <h5>🤖 AI Chatbot</h5>
+
+    <div
+        id="chatBox"
+        style="
+            height:220px;
+            overflow-y:auto;
+            background:#f0f6fd;
+            padding:10px;
+            border-radius:8px;
+            margin-bottom:10px;
+        "
+    ></div>
+
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            id="userInput"
+            class="form-control"
+            placeholder="พิมพ์ชื่อผลงาน หรือคำถาม..."
+        >
+
+        <button class="btn btn-primary" onclick="sendMessage()">
+            ส่ง
+        </button>
+
+    </div>
+
+</div>
+</div>
+
+
+<script src="js/ai-voice.js"></script>
+<script src="js/ai-chat.js"></script>
+<script src="js/ai-system.js"></script>
+
+
+<script>
+
+let currentLanguage = "th";
+let currentArtworkData = null;
+
+
+const translations = {
+
+    th:{
+        subTitle:"นิทรรศการดิจิทัลอัจฉริยะ",
+        placeholder:"ใส่รหัสผลงาน",
+        search:"🔍 ค้นหา",
+        scan:"📷 Scan QR",
+        alert:"กรุณาใส่รหัสผลงาน"
+    },
+
+    en:{
+        subTitle:"Smart Digital Exhibition",
+        placeholder:"Enter artwork ID",
+        search:"🔍 Search",
+        scan:"📷 Scan QR",
+        alert:"Please enter artwork ID"
+    },
+
+    cn:{
+        subTitle:"智能数字展览",
+        placeholder:"请输入作品编号",
+        search:"🔍 搜索",
+        scan:"📷 扫描二维码",
+        alert:"请输入作品编号"
+    }
+
+};
+
+
+document
+.getElementById("languageSelect")
+.addEventListener("change",function(){
+
+    currentLanguage=this.value;
+    changeLanguage();
+
+});
+
+
+document
+.getElementById("searchBtn")
+.addEventListener("click",searchArtwork);
+
+
+document
+.getElementById("scanBtn")
+.addEventListener("click",function(){
+
+    window.location.href="scan.html";
+
+});
+
+
+
+function changeLanguage(){
+
+    document.getElementById("subTitle").innerText =
+        translations[currentLanguage].subTitle;
+
+    document.getElementById("artworkId").placeholder =
+        translations[currentLanguage].placeholder;
+
+    document.getElementById("searchBtn").innerText =
+        translations[currentLanguage].search;
+
+    document.getElementById("scanBtn").innerText =
+        translations[currentLanguage].scan;
+
+    document.getElementById("error").innerText = "";
+
+    if(currentArtworkData){
+        displayArtwork(currentArtworkData);
+    }
+
+}
+
+
+
+function searchArtwork(){
+
+    let id = document
+        .getElementById("artworkId")
+        .value
+        .trim();
+
+
+    document.getElementById("error").innerText = "";
+    document.getElementById("result").style.display = "none";
+
+
+    if(!id){
+
+        alert(translations[currentLanguage].alert);
+        return;
+
+    }
+
+
+    fetch("artwork.php?id=" + id)
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        if(data.error){
+
+            document.getElementById("error").innerText = data.error;
+            return;
+
+        }
+
+        currentArtworkData = data;
+
+        displayArtwork(data);
+
+    })
+
+    .catch(() => {
+
+        document.getElementById("error").innerText = "โหลดข้อมูลไม่สำเร็จ";
+
+    });
+
+}
+
+
+
+function displayArtwork(data){
+
+    document.getElementById("image").src = data.image_url || "";
+
+    document.getElementById("title").innerText = data.title || "-";
+
+    document.getElementById("artist").innerText = data.artist || "-";
+
+
+    let desc = "";
+
+
+    if(currentLanguage === "th"){
+        desc = data.description_th;
+    }
+    else if(currentLanguage === "en"){
+        desc = data.description_en;
+    }
+    else if(currentLanguage === "cn"){
+        desc = data.description_cn;
+    }
+
+
+    if(!desc || desc.trim() === ""){
+        desc = "ไม่มีคำอธิบาย";
+    }
+
+
+    document.getElementById("description").innerText = desc;
+
+    document.getElementById("result").style.display = "block";
+
+}
+
+
+
+// CHAT
+
+function escapeHtml(text){
+
+    const div = document.createElement("div");
+
+    div.innerText = text;
+
+    return div.innerHTML;
+
+}
+
+
+
+async function sendMessage(){
+
+    const input = document.getElementById("userInput");
+
+    const message = input.value.trim();
+
+    if(!message) return;
+
+    const chatBox = document.getElementById("chatBox");
+
+
+    chatBox.innerHTML += `
+
+    <div style="margin-bottom:6px;">
+
+        <div style="font-weight:bold;">คุณ</div>
+
+        <div style="background:#dbeafe;padding:6px;border-radius:6px;">
+            ${escapeHtml(message)}
+        </div>
+
+    </div>
+
+    `;
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+
+    try{
+
+        const language = currentLanguage;
+
+        const reply = await AISystem.chat(message,language);
+
+
+        chatBox.innerHTML += `
+
+        <div style="margin-bottom:10px;">
+
+            <div style="font-weight:bold;">AI</div>
+
+            <div style="background:#f1f5f9;padding:6px;border-radius:6px;">
+                ${escapeHtml(reply)}
+            </div>
+
+        </div>
+
+        `;
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    }
+
+    catch(e){
+
+        console.error("AI ERROR",e);
+
+        chatBox.innerHTML += `
+
+        <div style="color:red;margin-bottom:10px;">
+            AI Error : ไม่สามารถเชื่อมต่อ AI ได้
+        </div>
+
+        `;
+
+    }
+
+    input.value = "";
+
+}
+
+
+
+document
+.getElementById("userInput")
+.addEventListener("keypress",function(e){
+
+    if(e.key === "Enter"){
+        sendMessage();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
