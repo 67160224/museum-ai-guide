@@ -4,9 +4,9 @@
 
 const AIChat = (function(){
 
-// ===============================
+// -------------------------------
 // Detect Language
-// ===============================
+// -------------------------------
 
 function detectLanguage(text){
 
@@ -22,42 +22,9 @@ function detectLanguage(text){
 }
 
 
-// ===============================
-// System Prompt
-// ===============================
-
-function getPrompt(lang){
-
-    if(lang === "zh"){
-        return `
-你是博物馆AI导览助手。
-必须只使用中文回答。
-不要使用英文或泰文。
-回答要清楚自然。
-`;
-    }
-
-    if(lang === "en"){
-        return `
-You are a museum AI guide.
-Reply ONLY in English.
-Do not use Thai or Chinese.
-Explain clearly like a museum guide.
-`;
-    }
-
-    return `
-คุณคือ AI ไกด์นำชมพิพิธภัณฑ์
-ต้องตอบเป็นภาษาไทยเท่านั้น
-ห้ามใช้ภาษาอังกฤษหรือจีน
-ตอบให้เข้าใจง่ายเหมือนไกด์พิพิธภัณฑ์
-`;
-}
-
-
-// ===============================
+// -------------------------------
 // Send Message
-// ===============================
+// -------------------------------
 
 async function send(message){
 
@@ -67,51 +34,35 @@ async function send(message){
 
     const language = detectLanguage(message);
 
-    const systemPrompt = getPrompt(language);
-
     try{
 
-        const response = await fetch(
-            "https://museumguide.67160224.workers.dev/",
-            {
-                method:"POST",
-
-                mode:"cors",
-
-                headers:{
-                    "Content-Type":"application/json",
-                    "Accept":"application/json"
-                },
-
-                body:JSON.stringify({
-                    message: message,
-                    language: language,
-                    prompt: systemPrompt
-                })
-
-            }
-        );
+        const response = await fetch("chatbot.php",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+            body:
+            "message="+encodeURIComponent(message)+
+            "&language="+encodeURIComponent(language)
+        });
 
         if(!response.ok){
-            console.error("HTTP ERROR:",response.status);
             return "AI Error : HTTP " + response.status;
         }
 
         const data = await response.json();
 
-        if(!data || !data.reply){
-            console.error("Invalid AI response:",data);
+        if(!data.reply){
             return "AI ไม่ส่งคำตอบกลับมา";
         }
 
-        return data.reply.trim();
+        return data.reply;
 
     }
     catch(err){
 
-        console.error("AI CONNECT ERROR:",err);
-
-        return "AI Error : ไม่สามารถเชื่อมต่อ AI ได้";
+        console.error(err);
+        return "AI Error : ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้";
 
     }
 
