@@ -1,12 +1,7 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
 
-$conn = new mysqli("localhost","root","","museum_db");
-
-if($conn->connect_error){
-    echo json_encode(["error"=>"Database connection failed"]);
-    exit;
-}
+include "db.php";
 
 $id = $_GET["id"] ?? "";
 
