@@ -103,11 +103,11 @@ $ch = curl_init($url);
 curl_setopt_array($ch, [
 
     CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_FOLLOWLOCATION => true,
 
     CURLOPT_HTTPHEADER => [
         "Content-Type: application/json",
         "Authorization: Bearer " . $apiKey,
-        "HTTP-Referer: http://localhost",
         "X-Title: Museum AI Guide"
     ],
 
@@ -118,6 +118,12 @@ curl_setopt_array($ch, [
     CURLOPT_TIMEOUT => 30
 
 ]);
+
+$response = curl_exec($ch);
+
+if(curl_errno($ch)){
+    echo curl_error($ch);
+}
 
 
 $response = curl_exec($ch);

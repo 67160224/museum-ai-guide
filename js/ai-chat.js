@@ -6,7 +6,7 @@ const AIChat = (function(){
 
 async function send(message, language="th"){
 
-    const response = await fetch("chat.php",{
+    const response = await fetch("https://museumguide.wuaze.com/chat.php",{
         method:"POST",
         headers:{
             "Content-Type":"application/x-www-form-urlencoded"
