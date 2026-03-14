@@ -66,5 +66,51 @@
 <script src="js/ai-chat.js"></script>
 <script src="js/ai-system.js"></script>
 
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+async function loadArtwork(){
+
+    if(!id){
+        document.getElementById("error").innerText="No artwork ID";
+        return;
+    }
+
+    try{
+
+        const res = await fetch(
+        "http://museum.infinityfreeapp.com/artwork.php"+id
+        );
+
+        const data = await res.json();
+
+        document.getElementById("loading").style.display="none";
+
+        if(data.error){
+            document.getElementById("error").innerText=data.error;
+            return;
+        }
+
+        document.getElementById("title").innerText=data.title;
+        document.getElementById("artist").innerText=data.artist;
+        document.getElementById("description").innerText=data.description;
+        document.getElementById("image").src=data.image_url;
+
+    }
+    catch(e){
+
+        document.getElementById("loading").style.display="none";
+        document.getElementById("error").innerText="โหลดข้อมูลไม่สำเร็จ";
+
+    }
+
+}
+
+loadArtwork();
+
+</script>
+
 </body>
 </html>
