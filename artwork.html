@@ -3,11 +3,12 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artwork</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="style.css">
+<title>Artwork</title>
+
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -20,7 +21,7 @@
 
     <div id="error" class="error"></div>
 
-    <img id="image">
+    <img id="image" alt="Artwork image">
 
     <h1 id="title"></h1>
 
@@ -66,45 +67,103 @@
 <script src="js/ai-chat.js"></script>
 <script src="js/ai-system.js"></script>
 
+
 <script>
+
+// -------------------------
+// Get Artwork ID
+// -------------------------
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
+
+// -------------------------
+// Load Artwork Data
+// -------------------------
+
 async function loadArtwork(){
 
     if(!id){
-        document.getElementById("error").innerText="No artwork ID";
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("error").innerText = "No artwork ID";
         return;
     }
 
     try{
 
-        const res = await fetch("artwork.php?id="+id);
+        const res = await fetch("artwork.php?id=" + encodeURIComponent(id));
+
+        if(!res.ok){
+            throw new Error("Server error");
+        }
 
         const data = await res.json();
 
-        document.getElementById("loading").style.display="none";
+        document.getElementById("loading").style.display = "none";
 
         if(data.error){
-            document.getElementById("error").innerText=data.error;
+            document.getElementById("error").innerText = data.error;
             return;
         }
 
-        document.getElementById("title").innerText=data.title;
-        document.getElementById("artist").innerText=data.artist;
-        document.getElementById("description").innerText=data.description;
-        document.getElementById("image").src=data.image_url;
+        document.getElementById("title").innerText = data.title || "";
+        document.getElementById("artist").innerText = data.artist || "";
+        document.getElementById("description").innerText = data.description || "";
+
+        if(data.image_url){
+            document.getElementById("image").src = data.image_url;
+        }
 
     }
     catch(e){
 
-        document.getElementById("loading").style.display="none";
-        document.getElementById("error").innerText="โหลดข้อมูลไม่สำเร็จ";
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("error").innerText = "โหลดข้อมูลไม่สำเร็จ";
 
     }
 
 }
+
+
+// -------------------------
+// Send Question to AI
+// -------------------------
+
+async function sendQuestion(){
+
+    const input = document.getElementById("question");
+    const chatBox = document.getElementById("chatBox");
+
+    const message = input.value.trim();
+
+    if(!message){
+        return;
+    }
+
+    chatBox.innerHTML += "<div><b>You:</b> " + message + "</div>";
+
+    input.value = "";
+
+    try{
+
+        const reply = await AISystem.chat(message);
+
+        chatBox.innerHTML += "<div><b>AI:</b> " + reply + "</div>";
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    }
+    catch(e){
+
+        chatBox.innerHTML += "<div><b>AI:</b> Error</div>";
+
+    }
+
+}
+
+
+// -------------------------
 
 loadArtwork();
 
