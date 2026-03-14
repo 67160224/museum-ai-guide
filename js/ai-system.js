@@ -18,8 +18,6 @@ function speak(text, language="th"){
 
     const speech = new SpeechSynthesisUtterance(text);
 
-    const voices = speechSynthesis.getVoices();
-
     // เลือกเสียงตามภาษา
     if(language === "th"){
         speech.lang = "th-TH";
@@ -69,16 +67,17 @@ function speakArtwork(){
 // 💬 CHAT + VOICE
 // ===============================
 
-async function chat(message, language="th"){
+async function chat(message){
 
-    const reply = await AIChat.send(message, language);
+    const reply = await AIChat.send(message);
 
     // พูดคำตอบ
-    speak(reply,language);
+    speak(reply);
 
     return reply;
 
 }
+
 
 return {
     speakArtwork,
