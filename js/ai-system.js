@@ -16,6 +16,9 @@ function speak(text, language="th"){
         return;
     }
 
+    // หยุดเสียงเก่าก่อน
+    speechSynthesis.cancel();
+
     const speech = new SpeechSynthesisUtterance(text);
 
     // เลือกเสียงตามภาษา
@@ -52,11 +55,16 @@ function speakArtwork(){
     const desc =
     document.getElementById("description")?.innerText || "";
 
+    if(!title && !desc){
+        console.log("No artwork data");
+        return;
+    }
+
     const text = `
-    ผลงานนี้มีชื่อว่า ${title}
-    สร้างโดย ${artist}
-    ${desc}
-    `;
+ผลงานนี้มีชื่อว่า ${title}
+สร้างโดย ${artist}
+${desc}
+`;
 
     speak(text,"th");
 
@@ -69,12 +77,32 @@ function speakArtwork(){
 
 async function chat(message){
 
-    const reply = await AIChat.send(message);
+    try{
 
-    // พูดคำตอบ
-    speak(reply);
+        const reply = await AIChat.send(message);
 
-    return reply;
+        // ตรวจภาษาคำตอบ
+        let lang = "th";
+
+        if(/[\u4e00-\u9fff]/.test(reply)){
+            lang = "zh";
+        }
+        else if(/[a-zA-Z]/.test(reply)){
+            lang = "en";
+        }
+
+        // พูดคำตอบ
+        speak(reply, lang);
+
+        return reply;
+
+    }
+    catch(err){
+
+        console.error(err);
+        return "AI Error";
+
+    }
 
 }
 
