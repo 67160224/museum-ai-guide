@@ -80,9 +80,7 @@ async function loadArtwork(){
 
     try{
 
-        const res = await fetch(
-        "http://museum.infinityfreeapp.com/artwork.php"+id
-        );
+        const res = await fetch("artwork.php?id="+id);
 
         const data = await res.json();
 
