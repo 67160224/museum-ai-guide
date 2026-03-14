@@ -18,7 +18,7 @@ body{
     background-color:#152133;
 
     /* ภาพพื้นหลัง */
-    background-image:url("museum-bg.jpg");
+    background-image:url("images/museum-bg.jpg");
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
