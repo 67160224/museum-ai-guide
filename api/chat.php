@@ -42,6 +42,7 @@ if(!$input){
 }
 
 $message = trim($input["message"] ?? "");
+$language = trim($input["language"] ?? "th");
 
 if($message === ""){
     echo json_encode([
@@ -57,7 +58,9 @@ if($message === ""){
 $SUPABASE_URL = "https://poderwfuvejrsrqydcbj.supabase.co";
 $SUPABASE_KEY = "sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen";
 
-$url = $SUPABASE_URL."/rest/v1/artworks?or=(title.ilike.%".$message."%,artist.ilike.%".$message."%,description_th.ilike.%".$message."%)&limit=1";
+$search = urlencode($message);
+
+$url = $SUPABASE_URL."/rest/v1/artworks?or=(title.ilike.%".$search."%,artist.ilike.%".$search."%,description_th.ilike.%".$search."%)&limit=1";
 
 $headers = [
  "apikey: ".$SUPABASE_KEY,
@@ -114,15 +117,25 @@ $context = "No artwork data found.";
 }
 
 /* =====================================================
+   SYSTEM PROMPT
+===================================================== */
+
+$systemPrompt = "You are a museum AI guide.
+
+Answer in ".$language." language.
+
+Explain artworks in a friendly way for museum visitors.";
+
+/* =====================================================
    AI REQUEST
 ===================================================== */
 
 $data = [
- "model"=>"meta-llama/llama-3-8b-instruct",
+ "model"=>"meta-llama/llama-3.1-8b-instruct:free",
  "messages"=>[
    [
     "role"=>"system",
-    "content"=>"You are a museum AI guide."
+    "content"=>$systemPrompt
    ],
    [
     "role"=>"user",
@@ -164,7 +177,28 @@ curl_close($ch);
 
 $result = json_decode($response,true);
 
-$reply = $result["choices"][0]["message"]["content"] ?? "AI ไม่ตอบกลับ";
+/* =====================================================
+   DEBUG ERROR จาก OPENROUTER
+===================================================== */
+
+if(isset($result["error"])){
+
+ echo json_encode([
+  "reply"=>"AI Error: ".$result["error"]["message"]
+ ]);
+ exit;
+
+}
+
+/* =====================================================
+   AI REPLY
+===================================================== */
+
+$reply = $result["choices"][0]["message"]["content"] ?? null;
+
+if(!$reply){
+    $reply = "AI ไม่ตอบกลับ";
+}
 
 echo json_encode([
  "reply"=>trim($reply)
