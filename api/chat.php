@@ -11,12 +11,13 @@ header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
     exit;
 }
 
 
 /* =====================================================
-   API KEY (OpenRouter)
+   API KEY
 ===================================================== */
 
 $apiKey = "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";
@@ -28,7 +29,17 @@ if (!$apiKey) {
 
 
 /* =====================================================
-   รับข้อความ
+   METHOD CHECK
+===================================================== */
+
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    echo json_encode(["reply" => "Method not allowed"]);
+    exit;
+}
+
+
+/* =====================================================
+   GET MESSAGE
 ===================================================== */
 
 $input = json_decode(file_get_contents("php://input"), true);
@@ -42,7 +53,7 @@ if ($message === "") {
 
 
 /* =====================================================
-   Detect Language
+   LANGUAGE DETECT
 ===================================================== */
 
 function detectLanguage($text)
@@ -83,8 +94,14 @@ $systemPrompt = "คุณคือ AI ไกด์นำชมพิพิธ�
 $data = [
     "model" => "meta-llama/llama-3-8b-instruct",
     "messages" => [
-        ["role" => "system", "content" => $systemPrompt],
-        ["role" => "user", "content" => $message]
+        [
+            "role" => "system",
+            "content" => $systemPrompt
+        ],
+        [
+            "role" => "user",
+            "content" => $message
+        ]
     ],
     "temperature" => 0.6,
     "max_tokens" => 500
@@ -92,28 +109,34 @@ $data = [
 
 
 /* =====================================================
-   CALL OPENROUTER
+   CALL OPENROUTER API
 ===================================================== */
 
 $ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
 
 curl_setopt_array($ch, [
+
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
+    CURLOPT_TIMEOUT => 30,
+
     CURLOPT_HTTPHEADER => [
         "Authorization: Bearer " . $apiKey,
         "Content-Type: application/json",
-        "HTTP-Referer: https://museum-ai-guide.pages.dev",
+        "HTTP-Referer: https://museum-ai-guide.wasmer.app",
         "X-Title: Museum AI Guide"
     ],
+
     CURLOPT_POSTFIELDS => json_encode($data)
+
 ]);
+
 
 $response = curl_exec($ch);
 
 
 /* =====================================================
-   ERROR HANDLE
+   CURL ERROR
 ===================================================== */
 
 if ($response === false) {
@@ -126,8 +149,11 @@ if ($response === false) {
     exit;
 }
 
+
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
 curl_close($ch);
+
 
 if ($httpCode !== 200) {
 
@@ -146,6 +172,7 @@ if ($httpCode !== 200) {
 $result = json_decode($response, true);
 
 $reply = $result["choices"][0]["message"]["content"] ?? "AI ไม่ตอบกลับ";
+
 
 echo json_encode([
     "reply" => trim($reply)
