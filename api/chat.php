@@ -47,10 +47,32 @@ $input = json_decode(file_get_contents("php://input"), true);
 $message = trim($input["message"] ?? "");
 
 if ($message === "") {
-    echo json_encode(["reply" => "กรุณาพิมพ์ข้อความ"]);
+
+    /* detect language from browser */
+    $langHeader = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? "";
+
+    if (strpos($langHeader, "zh") !== false) {
+
+        $reply = "你好 👋 欢迎来到 Museum AI Guide\n\n你可以：\n• 输入艺术品名称\n• 询问博物馆信息\n• 或扫描 QR 码查看展品";
+
+    }
+    elseif (strpos($langHeader, "en") !== false) {
+
+        $reply = "Hello 👋 Welcome to Museum AI Guide\n\nYou can:\n• Type the artwork name\n• Ask about the museum\n• Or scan a QR code to view the exhibit";
+
+    }
+    else {
+
+        $reply = "สวัสดี 👋 ยินดีต้อนรับสู่ Museum AI Guide\n\nคุณสามารถ:\n• พิมพ์ชื่อผลงาน\n• ถามข้อมูลเกี่ยวกับพิพิธภัณฑ์\n• หรือสแกน QR เพื่อดูข้อมูลผลงาน";
+
+    }
+
+    echo json_encode([
+        "reply" => $reply
+    ], JSON_UNESCAPED_UNICODE);
+
     exit;
 }
-
 
 /* =====================================================
    LANGUAGE DETECT
