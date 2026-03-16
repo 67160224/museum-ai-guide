@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Museum Guide</title>
+</head>
+
+<body>
+
+    <!-- =========================
+         ARTWORK CONTENT
+    ========================== -->
+
+    <h1 id="title"></h1>
+    <h3 id="artist"></h3>
+
+    <img id="img" width="400">
+
+    <p id="desc"></p>
+
+
+    <!-- =========================
+         SCRIPT
+    ========================== -->
+
+    <script>
+
+        // -------------------------
+        // API CONFIG
+        // -------------------------
+        const API = "https://poderwfuvejrsrqydcbj.supabase.co/rest/v1/artworks"
+        const API_KEY = "sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen"
+
+
+        // -------------------------
+        // GET ID FROM URL
+        // -------------------------
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get("id")
+
+
+        // -------------------------
+        // FETCH DATA FROM SUPABASE
+        // -------------------------
+        fetch(`${API}?id=eq.${id}`, {
+            headers: {
+                "apikey": API_KEY
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            const art = data[0]
+
+            document.getElementById("title").innerText = art.title
+            document.getElementById("artist").innerText = art.artist
+            document.getElementById("desc").innerText = art.description_en
+            document.getElementById("img").src = art.image_url
+
+        })
+
+    </script>
+
+</body>
+</html>
