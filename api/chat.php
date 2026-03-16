@@ -15,6 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+/* =====================================================
+   DATABASE
+===================================================== */
+
+include "db.php";
 
 /* =====================================================
    API KEY
@@ -27,7 +32,6 @@ if (!$apiKey) {
     exit;
 }
 
-
 /* =====================================================
    METHOD CHECK
 ===================================================== */
@@ -37,18 +41,15 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit;
 }
 
-
 /* =====================================================
    GET MESSAGE
 ===================================================== */
 
 $input = json_decode(file_get_contents("php://input"), true);
-
 $message = trim($input["message"] ?? "");
 
 if ($message === "") {
 
-    /* detect language from browser */
     $langHeader = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? "";
 
     if (strpos($langHeader, "zh") !== false) {
@@ -67,10 +68,7 @@ if ($message === "") {
 
     }
 
-    echo json_encode([
-        "reply" => $reply
-    ], JSON_UNESCAPED_UNICODE);
-
+    echo json_encode(["reply"=>$reply], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -87,6 +85,46 @@ function detectLanguage($text)
 
 $lang = detectLanguage($message);
 
+/* =====================================================
+   SEARCH ARTWORK IN DATABASE
+===================================================== */
+
+$stmt = $conn->prepare("
+SELECT title, artist, year, description
+FROM artworks
+WHERE
+title LIKE CONCAT('%', ?, '%')
+OR artist LIKE CONCAT('%', ?, '%')
+OR description LIKE CONCAT('%', ?, '%')
+LIMIT 1
+");
+
+$stmt->bind_param("sss",$message,$message,$message);
+$stmt->execute();
+
+$result = $stmt->get_result();
+$artwork = $result->fetch_assoc();
+
+/* =====================================================
+   CONTEXT FOR AI
+===================================================== */
+
+if($artwork){
+
+$context = "
+Artwork Information:
+
+Title: ".$artwork["title"]."
+Artist: ".$artwork["artist"]."
+Year: ".$artwork["year"]."
+Description: ".$artwork["description"]."
+";
+
+}else{
+
+$context = "No specific artwork found in database.";
+
+}
 
 /* =====================================================
    SYSTEM PROMPT
@@ -94,20 +132,19 @@ $lang = detectLanguage($message);
 
 if ($lang === "zh") {
 
-$systemPrompt = "你是博物馆AI导览助手。必须只使用中文回答。";
+$systemPrompt = "你是博物馆AI导览助手。使用提供的艺术品信息回答。如果没有信息，也可以一般性回答。";
 
 }
 elseif ($lang === "en") {
 
-$systemPrompt = "You are a museum AI guide. Reply only in English.";
+$systemPrompt = "You are a museum AI guide. Use the artwork information if provided. If not, answer normally about art.";
 
 }
 else {
 
-$systemPrompt = "คุณคือ AI ไกด์นำชมพิพิธภัณฑ์ ตอบเป็นภาษาไทยเท่านั้น";
+$systemPrompt = "คุณคือ AI ไกด์นำชมพิพิธภัณฑ์ ใช้ข้อมูลผลงานที่ให้มาในการตอบ หากไม่มีข้อมูลก็สามารถตอบทั่วไปเกี่ยวกับศิลปะได้";
 
 }
-
 
 /* =====================================================
    REQUEST DATA
@@ -122,16 +159,15 @@ $data = [
         ],
         [
             "role" => "user",
-            "content" => $message
+            "content" => $message . "\n\n" . $context
         ]
     ],
     "temperature" => 0.6,
     "max_tokens" => 500
 ];
 
-
 /* =====================================================
-   CALL OPENROUTER API
+   CALL OPENROUTER
 ===================================================== */
 
 $ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
@@ -153,12 +189,10 @@ curl_setopt_array($ch, [
 
 ]);
 
-
 $response = curl_exec($ch);
 
-
 /* =====================================================
-   CURL ERROR
+   ERROR HANDLE
 ===================================================== */
 
 if ($response === false) {
@@ -171,11 +205,8 @@ if ($response === false) {
     exit;
 }
 
-
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
 curl_close($ch);
-
 
 if ($httpCode !== 200) {
 
@@ -186,15 +217,12 @@ if ($httpCode !== 200) {
     exit;
 }
 
-
 /* =====================================================
    PARSE RESULT
 ===================================================== */
 
 $result = json_decode($response, true);
-
 $reply = $result["choices"][0]["message"]["content"] ?? "AI ไม่ตอบกลับ";
-
 
 echo json_encode([
     "reply" => trim($reply)
