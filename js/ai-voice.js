@@ -1,6 +1,6 @@
 // ===============================
-// 🎧 REALISTIC AI MUSEUM GUIDE v8
-// Mobile Stable Version
+// 🎧 REALISTIC AI MUSEUM GUIDE v9
+// Stable Desktop + Mobile
 // ===============================
 
 let availableVoices=[];
@@ -16,7 +16,7 @@ function loadVoices(){
 speechSynthesis.onvoiceschanged=loadVoices;
 loadVoices();
 
-// โหลดซ้ำ (แก้ Android Chrome)
+// โหลดเสียงซ้ำ (แก้ Android Chrome)
 setTimeout(loadVoices,1000);
 setTimeout(loadVoices,2000);
 
@@ -76,12 +76,15 @@ function fadeOutAmbient(){
 }
 
 // ===============================
-// TEXT CLEAN
+// CLEAN TEXT
 // ===============================
 
 function cleanText(text){
 
     return text
+    .replace(/artwork:/ig,"")
+    .replace(/作品:/ig,"")
+    .replace(/ผลงาน:/ig,"")
     .replace(/\n/g," ")
     .replace(/\s+/g," ")
     .trim();
@@ -140,6 +143,15 @@ function getButtonText(lang){
         };
     }
 
+    if(lang==="en"){
+        return{
+            play:"🎧 Audio Guide",
+            pause:"⏸ Pause",
+            resume:"▶ Resume",
+            stop:"⏹ Stop"
+        };
+    }
+
     return{
         play:"🎧 Audio Guide",
         pause:"⏸ Pause",
@@ -159,7 +171,9 @@ function chooseVoice(lang){
         v.lang.toLowerCase().includes(lang)
     );
 
-    return voices[0];
+    if(voices.length>0) return voices[0];
+
+    return availableVoices[0];
 
 }
 
@@ -231,8 +245,14 @@ function playGuide(){
         return;
     }
 
-    const desc=
-    document.getElementById("description")?.textContent.trim() || "";
+    const descElement=document.getElementById("description");
+
+    if(!descElement){
+        alert("ไม่พบคำอธิบาย");
+        return;
+    }
+
+    const desc=descElement.textContent.trim();
 
     if(!desc){
         alert("ไม่มีคำอธิบาย");
@@ -270,7 +290,6 @@ function playGuide(){
 function pauseGuide(){
 
     speechSynthesis.pause();
-
     isPaused=true;
 
 }
@@ -282,7 +301,6 @@ function pauseGuide(){
 function resumeGuide(){
 
     speechSynthesis.resume();
-
     isPaused=false;
 
 }
@@ -335,7 +353,13 @@ function createButtons(){
 
     if(desc.trim()==="") return;
 
-    const lang=detectLanguage(desc);
+    let lang=detectLanguage(desc);
+
+    const uiLang=
+    document.documentElement.lang ||
+    document.querySelector("select")?.value;
+
+    if(uiLang) lang=uiLang;
 
     const text=getButtonText(lang);
 
@@ -396,6 +420,6 @@ if(typeof originalDisplayArtwork==="function"){
 
 }
 
-console.log("🎧 AI Museum Guide Ready (Mobile Stable)");
+console.log("🎧 AI Museum Guide Ready (v9)");
 
 });
