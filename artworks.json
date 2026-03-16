@@ -1,0 +1,92 @@
+[
+  {
+    "id": "001",
+    "title": "Repose",
+    "artist": "John White Alexander",
+    "description_th": "ภาพวาดหุ่นมนุษย์เป็นรูปหญิงสาวในท่าทางที่สง่างามภายในห้องที่ตกแต่งอย่างหรูหรา ในองค์ประกอบภาพที่โดดเด่นนี้ สีหน้าที่ดูเย้ายวนและเส้นสายที่อ่อนช้อยของนางแบบสะท้อนถึงรสนิยมของชาวฝรั่งเศสในยุคนั้นที่นิยมภาพลักษณ์สตรีที่ดูงดงามและมีเสน่ห์ทางเพศ นอกจากนี้การจัดวางองค์ประกอบที่กล้าหาญยังสื่อถึงจังหวะของเส้นสายที่พริ้วไหวตามสไตล์ Art Nouveau ซึ่งเป็นรูปแบบศิลปะที่โดดเด่นในงานนิทรรศการปารีส",
+    "description_en": "This drawing depicts a female figure in an elegant pose within a luxuriously decorated interior. In this striking composition, the model’s seductive expression and graceful lines reflect the taste of French society of the period, which favored images of women that emphasized beauty and sensual charm. The bold arrangement of the composition also conveys the flowing rhythm of lines characteristic of the Art Nouveau style, an artistic movement prominently featured in the Paris exhibitions of the time.",
+    "description_cn": "这幅人物素描描绘了一位姿态优雅的女性，置身于装饰华丽的室内空间之中。在这一引人注目的构图中，模特富有魅力的神情与柔美的线条反映了当时法国社会的审美趣味，即偏好展现女性美丽与性感魅力的形象。此外，大胆的构图安排还表现出新艺术运动（Art Nouveau）特有的流动线条节奏，这种艺术风格在当时的巴黎博览会上尤为突出。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/10065/33683/main-image"
+  },
+  {
+    "id": "002",
+    "title": "Fur Traders Descending the Missouri",
+    "artist": "George Caleb Bingham",
+    "description_th": "ภาพวาดแนวชีวิตประจำวันที่มีเอกลักษณ์โดดเด่นและแทบไม่มีต้นแบบมาก่อนในผลงานยุคนั้น โดยเดิมทีศิลปินตั้งชื่อภาพนี้ว่า \"French Trader & Half breed Son\" ก่อนที่จะถูกเปลี่ยนชื่อให้ดูทั่วไปและลดความขัดแย้งลงเป็น \"Fur Traders Descending the Missouri\" เพื่อการประชาสัมพันธ์ศิลปะอเมริกันในระดับชาติผ่านภาพพิมพ์ ภายในภาพถ่ายทอดฉากอันเงียบสงบพร้อมบรรยากาศที่สว่างไสวเรืองรอง ซึ่งเป็นการนำเสนอภาพลักษณ์ในอุดมคติของดินแดนชายขอบอเมริกา (American frontier) เพื่อตอบสนองความชื่นชมของผู้ชมแถบชายฝั่งตะวันออก",
+    "description_en": "This painting of everyday life is distinctive and had few precedents in artworks of its time. The artist originally titled the work “French Trader & Half breed Son,” before it was renamed “Fur Traders Descending the Missouri” to appear more neutral and less controversial for promoting American art nationally.",
+    "description_cn": "这幅描绘日常生活的画作在当时的艺术作品中极具独特性，几乎没有先例。艺术家最初将其命名为《法国商人与其混血儿子》，后来为了在全国范围内推广美国艺术并减少争议，改名为《沿密苏里河而下的毛皮商人》。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/10159/34338/main-image"
+  },
+  {
+    "id": "003",
+    "title": "Daniel Crommelin Verplanck",
+    "artist": "John Singleton Copley",
+    "description_th": "Daniel Crommelin Verplanck ในวัยเก้าขวบผู้เป็นทายาทของตระกูลลูกครึ่งดัตช์-อเมริกันผู้มั่งคั่ง ถูกนำเสนอผ่านภาพพอร์ตเทรตที่มีความละเอียดลออและชัดเจนซึ่งเป็นเอกลักษณ์ของ Copley",
+    "description_en": "Daniel Crommelin Verplanck, portrayed here at the age of nine, was the heir of a wealthy Dutch-American family. This portrait demonstrates the refined clarity and meticulous detail that made John Singleton Copley one of the most successful portrait painters of colonial America.",
+    "description_cn": "画中九岁的丹尼尔·克罗梅林·维尔普兰克是富裕的荷兰裔美国家族继承人，这幅肖像画展现了科普利细致入微、清晰精确的绘画风格。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/10522/34316/main-image"
+  },
+  {
+    "id": "004",
+    "title": "Flight Into Egypt",
+    "artist": "Henry Ossawa Tanner",
+    "description_th": "ผลงานภาพร่างที่มีสีสันสดใสของศิลปินชาวแอฟริกันอเมริกัน Henry Ossawa Tanner ซึ่งเริ่มสร้างสรรค์งานในธีมศาสนาในช่วงกลางทศวรรษ 1890",
+    "description_en": "This vividly colored sketch is the work of Henry Ossawa Tanner, a prominent African American artist of the early twentieth century who focused on religious themes.",
+    "description_cn": "这幅色彩鲜明的草图出自二十世纪初著名的非裔美国艺术家亨利·奥萨瓦·坦纳。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/16947/2216155/restricted"
+  },
+  {
+    "id": "005",
+    "title": "Approaching Thunder Storm",
+    "artist": "Martin Johnson Heade",
+    "description_th": "ผลงานยุคแรกของซีรีส์ภาพวาดพายุริมฝั่งทะเลที่ Heade สร้างขึ้นจากเหตุการณ์พายุจริงบริเวณ Narragansett Bay",
+    "description_en": "Approaching Thunder Storm is one of the earliest works in Heade’s series of coastal storm paintings inspired by an actual storm he witnessed.",
+    "description_cn": "《雷暴将至》是希德海岸风暴系列作品中最早的画作之一。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/11050/46452/main-image"
+  },
+  {
+    "id": "006",
+    "title": "Lake George",
+    "artist": "John Frederick Kensett",
+    "description_th": "ผลงานขนาดใหญ่จากการศึกษาพื้นที่ Adirondack Mountains โดยถ่ายทอดทัศนียภาพที่เงียบสงบของ Lake George",
+    "description_en": "Lake George is the largest painting from Kensett’s studies of the Adirondack region, presenting a tranquil landscape view.",
+    "description_cn": "《乔治湖》是肯塞特在研究阿迪朗达克山脉后创作的最大规模作品。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/11311/34368/main-image"
+  },
+  {
+    "id": "007",
+    "title": "In the Generalife",
+    "artist": "John Singer Sargent",
+    "description_th": "ผลงานที่ผสมผสานการวาดภาพพอร์ตเทรตกับการวาดภาพกลางแจ้งในสวนของพระราชวังฤดูร้อนอดีตสุลต่านมัวร์ที่กรานาดา",
+    "description_en": "In the Generalife demonstrates Sargent’s mastery in combining portrait painting with plein-air techniques.",
+    "description_cn": "《在赫内拉利费花园》中展示了萨金特将肖像画与户外写生结合的技巧。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/12116/1364774/restricted"
+  },
+  {
+    "id": "008",
+    "title": "Ernesta (Child with Nurse)",
+    "artist": "Cecilia Beaux",
+    "description_th": "ภาพของเด็กหญิง Ernesta Drinker จับมือพี่เลี้ยง แสดงถึงความสง่างามและความเปราะบางของเด็ก",
+    "description_en": "Ernesta (Child with Nurse) portrays the artist’s niece holding the hand of her nurse, reflecting both elegance and vulnerability.",
+    "description_cn": "《埃内斯塔（孩子与保姆）》描绘了艺术家侄女与保姆之间的温柔场景。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/10127/35311/restricted"
+  },
+  {
+    "id": "009",
+    "title": "The Rocky Mountains, Lander's Peak",
+    "artist": "Albert Bierstadt",
+    "description_th": "ภาพทิวทัศน์อันยิ่งใหญ่ของเทือกเขาร็อกกีในรัฐไวโอมิง สะท้อนแนวคิด Manifest Destiny ของอเมริกาในศตวรรษที่ 19",
+    "description_en": "The Rocky Mountains, Lander’s Peak presents a majestic view of the Rocky Mountains and reflects the ideology of Manifest Destiny.",
+    "description_cn": "《落基山脉：兰德峰》展现了美国西部壮丽的自然景观。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/10154/34358/main-image"
+  },
+  {
+    "id": "010",
+    "title": "Lydia Crocheting in the Garden at Marly",
+    "artist": "Mary Cassatt",
+    "description_th": "ภาพของ Lydia พี่สาวของศิลปินกำลังถักโครเชต์ในสวนที่ Marly-le-Roi สะท้อนชีวิตครอบครัวและแสงแดดแบบอิมเพรสชันนิสต์",
+    "description_en": "Lydia Crocheting in the Garden at Marly portrays the artist’s sister absorbed in crochet within a bright garden setting.",
+    "description_cn": "《在马尔利花园中钩织的莉迪亚》描绘了艺术家姐姐在花园中专注钩织的场景。",
+    "image_url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/10393/35817/restricted"
+  }
+]
