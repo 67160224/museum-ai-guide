@@ -1,54 +1,28 @@
 <?php
 
-ini_set('display_errors',1);
-error_reporting(E_ALL);
-
 header("Content-Type: application/json; charset=UTF-8");
 
-/* =====================================================
-   CORS
-===================================================== */
-
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-/* =====================================================
+/* =========================
    API KEY
-===================================================== */
+========================= */
 
 $apiKey = "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";
 
-if(!$apiKey){
-    echo json_encode(["reply"=>"Server config error"]);
-    exit;
-}
-
-/* =====================================================
-   GET MESSAGE (รองรับ FORM + JSON)
-===================================================== */
+/* =========================
+   รับข้อความ
+========================= */
 
 $raw = file_get_contents("php://input");
-
-$input = json_decode($raw,true);
-
-if(!$input){
-    parse_str($raw,$input);
-}
+parse_str($raw,$input);
 
 $message = trim($input["message"] ?? "");
 $language = trim($input["language"] ?? "th");
 
-if($message === ""){
-    echo json_encode([
-        "reply"=>"Hello 👋 Welcome to Museum AI Guide"
-    ]);
-    exit;
+if($message==""){
+ echo json_encode([
+  "reply"=>"Hello 👋 Welcome to Museum AI Guide"
+ ]);
+ exit;
 }
 
 /* =====================================================
@@ -76,7 +50,6 @@ curl_setopt_array($ch,[
 ]);
 
 $response = curl_exec($ch);
-
 curl_close($ch);
 
 $data = json_decode($response,true);
@@ -96,9 +69,9 @@ if($data && count($data)>0){
 
 }
 
-/* =====================================================
+/* =========================
    CONTEXT
-===================================================== */
+========================= */
 
 if($artwork){
 
@@ -116,31 +89,35 @@ $context = "No artwork data found.";
 
 }
 
-/* =====================================================
-   SYSTEM PROMPT
-===================================================== */
+/* =========================
+   LANGUAGE
+========================= */
 
-$systemPrompt = "You are a museum AI guide.
+if($language=="zh"){
+ $langPrompt = "Answer in Chinese.";
+}
+elseif($language=="en"){
+ $langPrompt = "Answer in English.";
+}
+else{
+ $langPrompt = "Answer in Thai.";
+}
 
-Answer in ".$language." language.
-
-Explain artworks in a friendly way for museum visitors.";
-
-/* =====================================================
+/* =========================
    AI REQUEST
-===================================================== */
+========================= */
 
 $data = [
  "model"=>"meta-llama/llama-3.1-8b-instruct:free",
  "messages"=>[
-   [
-    "role"=>"system",
-    "content"=>$systemPrompt
-   ],
-   [
-    "role"=>"user",
-    "content"=>$message."\n\n".$context
-   ]
+  [
+   "role"=>"system",
+   "content"=>"You are a museum AI guide. ".$langPrompt
+  ],
+  [
+   "role"=>"user",
+   "content"=>$message."\n\n".$context
+  ]
  ]
 ];
 
@@ -152,9 +129,8 @@ curl_setopt_array($ch,[
  CURLOPT_POST=>true,
 
  CURLOPT_HTTPHEADER=>[
-   "Authorization: Bearer ".$apiKey,
-   "Content-Type: application/json",
-   "HTTP-Referer: https://museum-ai-guide.wasmer.app"
+  "Authorization: Bearer ".$apiKey,
+  "Content-Type: application/json"
  ],
 
  CURLOPT_POSTFIELDS=>json_encode($data)
@@ -163,7 +139,7 @@ curl_setopt_array($ch,[
 
 $response = curl_exec($ch);
 
-if($response === false){
+if($response===false){
 
  echo json_encode([
   "reply"=>"AI Error: ".curl_error($ch)
@@ -177,28 +153,7 @@ curl_close($ch);
 
 $result = json_decode($response,true);
 
-/* =====================================================
-   DEBUG ERROR จาก OPENROUTER
-===================================================== */
-
-if(isset($result["error"])){
-
- echo json_encode([
-  "reply"=>"AI Error: ".$result["error"]["message"]
- ]);
- exit;
-
-}
-
-/* =====================================================
-   AI REPLY
-===================================================== */
-
-$reply = $result["choices"][0]["message"]["content"] ?? null;
-
-if(!$reply){
-    $reply = "AI ไม่ตอบกลับ";
-}
+$reply = $result["choices"][0]["message"]["content"] ?? "AI ไม่ตอบกลับ";
 
 echo json_encode([
  "reply"=>trim($reply)
