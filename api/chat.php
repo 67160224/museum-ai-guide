@@ -3,13 +3,13 @@
 header("Content-Type: application/json; charset=UTF-8");
 
 /* =========================
-   API KEY
+   OPENROUTER API
 ========================= */
 
 $apiKey = "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";
 
 /* =========================
-   รับข้อความ
+   RECEIVE MESSAGE
 ========================= */
 
 $raw = file_get_contents("php://input");
@@ -38,8 +38,7 @@ $url = $SUPABASE_URL."/rest/v1/artworks?or=(title.ilike.%".$search."%,artist.ili
 
 $headers = [
  "apikey: ".$SUPABASE_KEY,
- "Authorization: Bearer ".$SUPABASE_KEY,
- "Content-Type: application/json"
+ "Authorization: Bearer ".$SUPABASE_KEY
 ];
 
 $ch = curl_init($url);
@@ -54,38 +53,19 @@ curl_close($ch);
 
 $data = json_decode($response,true);
 
-$artwork = null;
+$context = "No artwork data found.";
 
 if($data && count($data)>0){
 
- $row = $data[0];
-
- $artwork = [
-  "title"=>$row["title"] ?? "",
-  "artist"=>$row["artist"] ?? "",
-  "year"=>$row["year"] ?? "",
-  "description"=>$row["description_th"] ?? ""
- ];
-
-}
-
-/* =========================
-   CONTEXT
-========================= */
-
-if($artwork){
+$row = $data[0];
 
 $context =
 "Artwork Information:
 
-Title: ".$artwork["title"]."
-Artist: ".$artwork["artist"]."
-Year: ".$artwork["year"]."
-Description: ".$artwork["description"];
-
-}else{
-
-$context = "No artwork data found.";
+Title: ".$row["title"]."
+Artist: ".$row["artist"]."
+Year: ".$row["year"]."
+Description: ".$row["description_th"];
 
 }
 
@@ -94,13 +74,13 @@ $context = "No artwork data found.";
 ========================= */
 
 if($language=="zh"){
- $langPrompt = "Answer in Chinese.";
+ $langPrompt="Answer in Chinese.";
 }
 elseif($language=="en"){
- $langPrompt = "Answer in English.";
+ $langPrompt="Answer in English.";
 }
 else{
- $langPrompt = "Answer in Thai.";
+ $langPrompt="Answer in Thai.";
 }
 
 /* =========================
@@ -108,7 +88,9 @@ else{
 ========================= */
 
 $data = [
- "model"=>"meta-llama/llama-3.1-8b-instruct:free",
+
+ "model"=>"openrouter/auto",
+
  "messages"=>[
   [
    "role"=>"system",
@@ -119,6 +101,7 @@ $data = [
    "content"=>$message."\n\n".$context
   ]
  ]
+
 ];
 
 $ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
@@ -147,13 +130,32 @@ if($response===false){
 
  curl_close($ch);
  exit;
+
 }
 
 curl_close($ch);
 
 $result = json_decode($response,true);
 
-$reply = $result["choices"][0]["message"]["content"] ?? "AI ไม่ตอบกลับ";
+if(isset($result["error"])){
+
+ echo json_encode([
+  "reply"=>"AI Error: ".$result["error"]["message"]
+ ]);
+ exit;
+
+}
+
+$reply = $result["choices"][0]["message"]["content"] ?? null;
+
+if(!$reply){
+
+ echo json_encode([
+  "reply"=>"AI ไม่ตอบกลับ"
+ ]);
+ exit;
+
+}
 
 echo json_encode([
  "reply"=>trim($reply)
