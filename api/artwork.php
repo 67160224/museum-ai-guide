@@ -2,7 +2,7 @@
 
 header("Content-Type: application/json; charset=UTF-8");
 
-include "api/db.php";
+include "/api/db.php";
 
 /* -------------------------
    รับค่า ID
