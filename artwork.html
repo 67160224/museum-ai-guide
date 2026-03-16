@@ -92,7 +92,7 @@ async function loadArtwork(){
 
     try{
 
-        const res = await fetch("/api/artwork.php?id=" + encodeURIComponent(id));
+        const res = await fetch("https://museum-ai-guide.wasmer.app/api/artwork.php?id=" + id)
 
         if(!res.ok){
             throw new Error("Server error");
