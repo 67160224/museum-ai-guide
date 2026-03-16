@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
    DATABASE
 ===================================================== */
 
-include "/api/db.php";
+include "db.php";
 
 /* =====================================================
    API KEY
