@@ -2,8 +2,6 @@
 
 header("Content-Type: application/json; charset=UTF-8");
 
-require __DIR__ . "/db.php";
-
 /* -------------------------
    รับค่า ID
 ------------------------- */
@@ -18,47 +16,46 @@ if(empty($id)){
 }
 
 /* -------------------------
-   เตรียม Query
+   เรียก Supabase API
 ------------------------- */
 
-$stmt = $conn->prepare("SELECT * FROM artworks WHERE id = ?");
+$SUPABASE_URL = "https://poderwfuvejrsrqydcbj.supabase.co";
+$API_KEY = "sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen";
 
-if(!$stmt){
+$url = $SUPABASE_URL . "/rest/v1/artworks?id=eq." . urlencode($id);
+
+$headers = [
+    "apikey: ".$API_KEY,
+    "Authorization: Bearer ".$API_KEY,
+    "Content-Type: application/json"
+];
+
+$ch = curl_init($url);
+
+curl_setopt_array($ch,[
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => $headers
+]);
+
+$response = curl_exec($ch);
+
+if($response === false){
     echo json_encode([
-        "error" => "SQL prepare failed"
+        "error" => "Supabase connection failed"
     ]);
+    curl_close($ch);
     exit;
 }
 
-/* -------------------------
-   Bind + Execute
-------------------------- */
+curl_close($ch);
 
-$stmt->bind_param("s", $id);
-
-if(!$stmt->execute()){
-    echo json_encode([
-        "error" => "SQL execute failed"
-    ]);
-    exit;
-}
-
-$result = $stmt->get_result();
-
-if(!$result){
-    echo json_encode([
-        "error" => "Query error"
-    ]);
-    exit;
-}
+$data = json_decode($response,true);
 
 /* -------------------------
    Fetch Data
 ------------------------- */
 
-$data = $result->fetch_assoc();
-
-if(!$data){
+if(!$data || count($data) === 0){
     echo json_encode([
         "error" => "Artwork not found"
     ], JSON_UNESCAPED_UNICODE);
@@ -69,13 +66,6 @@ if(!$data){
    ส่งข้อมูลกลับ
 ------------------------- */
 
-echo json_encode($data, JSON_UNESCAPED_UNICODE);
-
-/* -------------------------
-   Close
-------------------------- */
-
-$stmt->close();
-$conn->close();
+echo json_encode($data[0], JSON_UNESCAPED_UNICODE);
 
 ?>
