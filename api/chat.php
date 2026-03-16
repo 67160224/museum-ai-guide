@@ -6,7 +6,7 @@ header("Content-Type: application/json; charset=UTF-8");
    API KEY
 ========================= */
 
-$apiKey = "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";
+$apiKey = "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";
 
 /* =========================
    รับข้อความ
