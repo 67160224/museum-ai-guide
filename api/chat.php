@@ -19,12 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 /* =====================================================
-   DATABASE
-===================================================== */
-
-require __DIR__ . "/db.php";
-
-/* =====================================================
    API KEY
 ===================================================== */
 
@@ -57,40 +51,47 @@ if($message === ""){
 }
 
 /* =====================================================
-   SEARCH ARTWORK
+   SEARCH ARTWORK (Supabase)
 ===================================================== */
 
-$stmt = $conn->prepare("
-SELECT title,artist,year,description
-FROM artworks
-WHERE
-title LIKE CONCAT('%', ?, '%')
-OR artist LIKE CONCAT('%', ?, '%')
-OR description LIKE CONCAT('%', ?, '%')
-LIMIT 1
-");
+$SUPABASE_URL = "https://poderwfuvejrsrqydcbj.supabase.co";
+$SUPABASE_KEY = "sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen";
 
-$stmt->bind_param("sss",$message,$message,$message);
+$url = $SUPABASE_URL."/rest/v1/artworks?or=(title.ilike.%".$message."%,artist.ilike.%".$message."%,description_th.ilike.%".$message."%)&limit=1";
 
-$stmt->execute();
+$headers = [
+ "apikey: ".$SUPABASE_KEY,
+ "Authorization: Bearer ".$SUPABASE_KEY,
+ "Content-Type: application/json"
+];
 
-/* ใช้ bind_result แทน get_result */
+$ch = curl_init($url);
 
-$stmt->bind_result($title,$artist,$year,$description);
+curl_setopt_array($ch,[
+ CURLOPT_RETURNTRANSFER => true,
+ CURLOPT_HTTPHEADER => $headers
+]);
+
+$response = curl_exec($ch);
+
+curl_close($ch);
+
+$data = json_decode($response,true);
 
 $artwork = null;
 
-if($stmt->fetch()){
+if($data && count($data)>0){
 
-    $artwork = [
-        "title"=>$title,
-        "artist"=>$artist,
-        "year"=>$year,
-        "description"=>$description
-    ];
+ $row = $data[0];
+
+ $artwork = [
+  "title"=>$row["title"] ?? "",
+  "artist"=>$row["artist"] ?? "",
+  "year"=>$row["year"] ?? "",
+  "description"=>$row["description_th"] ?? ""
+ ];
+
 }
-
-$stmt->close();
 
 /* =====================================================
    CONTEXT
