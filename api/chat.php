@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
    DATABASE
 ===================================================== */
 
-include "/api/db.php";
+include "db.php";
 
 /* =====================================================
    API KEY
@@ -42,11 +42,24 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 /* =====================================================
-   GET MESSAGE
+   GET MESSAGE (รองรับ JSON + FORM)
 ===================================================== */
 
-$input = json_decode(file_get_contents("php://input"), true);
+$raw = file_get_contents("php://input");
+
+/* รองรับ JSON */
+$input = json_decode($raw, true);
+
+/* ถ้าไม่ใช่ JSON ให้ parse form */
+if (!$input) {
+    parse_str($raw, $input);
+}
+
 $message = trim($input["message"] ?? "");
+
+/* =====================================================
+   WELCOME MESSAGE
+===================================================== */
 
 if ($message === "") {
 
