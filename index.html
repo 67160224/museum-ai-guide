@@ -110,10 +110,6 @@
 </div>
 </div>
 
-<script src="api/db.php"></script>
-<script src="api/artwork.php"></script>
-<script src="api/chat.php"></script>
-
 <script src="js/ai-chat.js"></script>
 <script src="js/ai-system.js"></script>
 <script src="js/ai-voice.js"></script>
@@ -223,7 +219,7 @@ function searchArtwork(){
     }
 
 
-    fetch("artwork.php?id=" + id)
+    fetch("/api/artwork.php?id=" + id)
 
     .then(res => res.json())
 
