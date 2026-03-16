@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
    API KEY (OpenRouter)
 ===================================================== */
 
-$apiKey = "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";
+$apiKey = "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";
 
 if (!$apiKey) {
     echo json_encode(["reply" => "Server config error"]);
