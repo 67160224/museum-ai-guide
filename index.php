@@ -1,3 +1,3 @@
 <?php
-echo "PHP WORKING";
+require "index.html";
 ?>
