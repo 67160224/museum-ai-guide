@@ -4,6 +4,8 @@
 
 const AIChat = (function(){
 
+let isSending = false;
+
 // -------------------------------
 // Detect Language
 // -------------------------------
@@ -21,7 +23,6 @@ function detectLanguage(text){
     return "th";
 }
 
-
 // -------------------------------
 // Send Message
 // -------------------------------
@@ -31,6 +32,12 @@ async function send(message){
     if(!message){
         return "กรุณาพิมพ์ข้อความ";
     }
+
+    if(isSending){
+        return "AI กำลังตอบอยู่...";
+    }
+
+    isSending = true;
 
     const language = detectLanguage(message);
 
@@ -47,10 +54,13 @@ async function send(message){
         });
 
         if(!response.ok){
+            isSending = false;
             return "AI Error : HTTP " + response.status;
         }
 
         const data = await response.json();
+
+        isSending = false;
 
         if(!data.reply){
             return "AI ไม่ส่งคำตอบกลับมา";
@@ -62,6 +72,7 @@ async function send(message){
     catch(err){
 
         console.error(err);
+        isSending = false;
         return "AI Error : ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้";
 
     }
