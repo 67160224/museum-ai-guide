@@ -63,10 +63,6 @@
 </div>
 
 
-<script src="api/db.php"></script>
-<script src="api/artwork.php"></script>
-<script src="api/chat.php"></script>
-
 <script src="js/ai-voice.js"></script>
 <script src="js/ai-chat.js"></script>
 <script src="js/ai-system.js"></script>
@@ -96,7 +92,7 @@ async function loadArtwork(){
 
     try{
 
-        const res = await fetch("artwork.php?id=" + encodeURIComponent(id));
+        const res = await fetch("/api/artwork.php?id=" + encodeURIComponent(id));
 
         if(!res.ok){
             throw new Error("Server error");
