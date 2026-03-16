@@ -112,9 +112,11 @@ curl_setopt_array($ch,[
  CURLOPT_POST=>true,
 
  CURLOPT_HTTPHEADER=>[
-  "Authorization: Bearer ".$apiKey,
-  "Content-Type: application/json"
- ],
+ "Authorization: Bearer ".$apiKey,
+ "HTTP-Referer: https://museum-ai-guide.wasmer.app",
+ "X-Title: Museum AI Guide",
+ "Content-Type: application/json"
+],
 
  CURLOPT_POSTFIELDS=>json_encode($data)
 
