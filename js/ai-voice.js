@@ -1,13 +1,12 @@
 // ===============================
-// 🎧 REALISTIC AI MUSEUM GUIDE v9
-// Stable Desktop + Mobile
+// 🎧 REALISTIC AI MUSEUM GUIDE v10
+// Fix Thai Speech + Mobile
 // ===============================
 
 let availableVoices=[];
 let ambientAudio=null;
 
 let isPlaying=false;
-let isPaused=false;
 
 function loadVoices(){
     availableVoices=speechSynthesis.getVoices();
@@ -16,7 +15,7 @@ function loadVoices(){
 speechSynthesis.onvoiceschanged=loadVoices;
 loadVoices();
 
-// โหลดเสียงซ้ำ (แก้ Android Chrome)
+// โหลดซ้ำ (แก้ Chrome บางเครื่อง)
 setTimeout(loadVoices,1000);
 setTimeout(loadVoices,2000);
 
@@ -26,53 +25,6 @@ ambientAudio=document.getElementById("ambientSound");
 
 if(ambientAudio){
     ambientAudio.volume=0;
-}
-
-// ===============================
-// AMBIENT SOUND
-// ===============================
-
-function fadeInAmbient(){
-
-    if(!ambientAudio) return;
-
-    ambientAudio.play().catch(()=>{});
-
-    let v=0;
-
-    const fade=setInterval(()=>{
-
-        if(v>=0.08){
-            clearInterval(fade);
-            return;
-        }
-
-        v+=0.004;
-        ambientAudio.volume=v;
-
-    },180);
-
-}
-
-function fadeOutAmbient(){
-
-    if(!ambientAudio) return;
-
-    let v=ambientAudio.volume;
-
-    const fade=setInterval(()=>{
-
-        if(v<=0){
-            clearInterval(fade);
-            ambientAudio.pause();
-            return;
-        }
-
-        v-=0.004;
-        ambientAudio.volume=v;
-
-    },180);
-
 }
 
 // ===============================
@@ -92,7 +44,7 @@ function cleanText(text){
 }
 
 // ===============================
-// SPLIT SENTENCES
+// SPLIT SENTENCE
 // ===============================
 
 function splitSentences(text){
@@ -120,58 +72,29 @@ function detectLanguage(text){
 }
 
 // ===============================
-// BUTTON TEXT
-// ===============================
-
-function getButtonText(lang){
-
-    if(lang==="th"){
-        return{
-            play:"🎧 ฟังเสียง AI",
-            pause:"⏸ หยุดชั่วคราว",
-            resume:"▶ เล่นต่อ",
-            stop:"⏹ หยุด"
-        };
-    }
-
-    if(lang==="zh"){
-        return{
-            play:"🎧 AI语音导览",
-            pause:"⏸ 暂停",
-            resume:"▶ 继续",
-            stop:"⏹ 停止"
-        };
-    }
-
-    if(lang==="en"){
-        return{
-            play:"🎧 Audio Guide",
-            pause:"⏸ Pause",
-            resume:"▶ Resume",
-            stop:"⏹ Stop"
-        };
-    }
-
-    return{
-        play:"🎧 Audio Guide",
-        pause:"⏸ Pause",
-        resume:"▶ Resume",
-        stop:"⏹ Stop"
-    };
-
-}
-
-// ===============================
-// VOICE SELECT
+// SELECT VOICE
 // ===============================
 
 function chooseVoice(lang){
 
-    let voices=availableVoices.filter(v=>
-        v.lang.toLowerCase().includes(lang)
-    );
+    if(!availableVoices || availableVoices.length===0){
+        return null;
+    }
 
-    if(voices.length>0) return voices[0];
+    if(lang==="th"){
+        let thai=availableVoices.find(v=>v.lang==="th-TH");
+        if(thai) return thai;
+    }
+
+    if(lang==="zh"){
+        let zh=availableVoices.find(v=>v.lang.includes("zh"));
+        if(zh) return zh;
+    }
+
+    if(lang==="en"){
+        let en=availableVoices.find(v=>v.lang.includes("en"));
+        if(en) return en;
+    }
 
     return availableVoices[0];
 
@@ -189,12 +112,7 @@ function speakParts(parts){
 
         if(!isPlaying) return;
 
-        if(index>=parts.length){
-
-            fadeOutAmbient();
-            return;
-
-        }
+        if(index>=parts.length) return;
 
         const part=parts[index];
 
@@ -208,11 +126,12 @@ function speakParts(parts){
 
         const voice=chooseVoice(lang);
 
-        if(voice) utter.voice=voice;
+        if(voice){
+            utter.voice=voice;
+        }
 
         utter.rate=0.9;
         utter.pitch=1;
-        utter.volume=1;
 
         utter.onend=()=>{
 
@@ -222,7 +141,7 @@ function speakParts(parts){
 
                 speakNext();
 
-            },part.pause);
+            },800);
 
         };
 
@@ -235,13 +154,13 @@ function speakParts(parts){
 }
 
 // ===============================
-// PLAY
+// PLAY GUIDE
 // ===============================
 
 function playGuide(){
 
     if(!window.speechSynthesis){
-        alert("อุปกรณ์นี้ไม่รองรับเสียง AI");
+        alert("อุปกรณ์นี้ไม่รองรับเสียง");
         return;
     }
 
@@ -252,19 +171,19 @@ function playGuide(){
         return;
     }
 
-    const desc=descElement.textContent.trim();
+    const desc=descElement.innerText.trim();
 
     if(!desc){
         alert("ไม่มีคำอธิบาย");
         return;
     }
 
+    console.log("Speech text:",desc);
+    console.log("Language:",detectLanguage(desc));
+
     speechSynthesis.cancel();
 
     isPlaying=true;
-    isPaused=false;
-
-    fadeInAmbient();
 
     const sentences=splitSentences(cleanText(desc));
 
@@ -273,35 +192,12 @@ function playGuide(){
     sentences.forEach(s=>{
 
         parts.push({
-            text:s.trim(),
-            pause:900
+            text:s.trim()
         });
 
     });
 
     speakParts(parts);
-
-}
-
-// ===============================
-// PAUSE
-// ===============================
-
-function pauseGuide(){
-
-    speechSynthesis.pause();
-    isPaused=true;
-
-}
-
-// ===============================
-// RESUME
-// ===============================
-
-function resumeGuide(){
-
-    speechSynthesis.resume();
-    isPaused=false;
 
 }
 
@@ -312,11 +208,8 @@ function resumeGuide(){
 function stopGuide(){
 
     isPlaying=false;
-    isPaused=false;
 
     speechSynthesis.cancel();
-
-    fadeOutAmbient();
 
 }
 
@@ -333,12 +226,11 @@ function styleButton(btn,color){
     btn.style.border="none";
     btn.style.borderRadius="8px";
     btn.style.cursor="pointer";
-    btn.style.fontWeight="bold";
 
 }
 
 // ===============================
-// CREATE BUTTONS
+// CREATE BUTTON
 // ===============================
 
 function createButtons(){
@@ -349,20 +241,6 @@ function createButtons(){
 
     if(!descElement) return;
 
-    const desc=descElement.textContent||"";
-
-    if(desc.trim()==="") return;
-
-    let lang=detectLanguage(desc);
-
-    const uiLang=
-    document.documentElement.lang ||
-    document.querySelector("select")?.value;
-
-    if(uiLang) lang=uiLang;
-
-    const text=getButtonText(lang);
-
     const box=document.createElement("div");
 
     box.id="aiSpeechBox";
@@ -370,28 +248,17 @@ function createButtons(){
     box.style.textAlign="center";
 
     const playBtn=document.createElement("button");
-    playBtn.innerText=text.play;
+    playBtn.innerText="🎧 Audio Guide";
     playBtn.onclick=playGuide;
-    styleButton(playBtn,"#1f2937");
-
-    const pauseBtn=document.createElement("button");
-    pauseBtn.innerText=text.pause;
-    pauseBtn.onclick=pauseGuide;
-    styleButton(pauseBtn,"#f39c12");
-
-    const resumeBtn=document.createElement("button");
-    resumeBtn.innerText=text.resume;
-    resumeBtn.onclick=resumeGuide;
-    styleButton(resumeBtn,"#16a085");
 
     const stopBtn=document.createElement("button");
-    stopBtn.innerText=text.stop;
+    stopBtn.innerText="⏹ Stop";
     stopBtn.onclick=stopGuide;
+
+    styleButton(playBtn,"#1f2937");
     styleButton(stopBtn,"#c0392b");
 
     box.appendChild(playBtn);
-    box.appendChild(pauseBtn);
-    box.appendChild(resumeBtn);
     box.appendChild(stopBtn);
 
     descElement.parentNode.insertBefore(box,descElement.nextSibling);
@@ -420,6 +287,6 @@ if(typeof originalDisplayArtwork==="function"){
 
 }
 
-console.log("🎧 AI Museum Guide Ready (v9)");
+console.log("🎧 AI Museum Guide Ready v10");
 
 });
