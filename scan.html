@@ -47,9 +47,9 @@ let html5QrcodeScanner = new Html5QrcodeScanner(
 
 html5QrcodeScanner.render(onScanSuccess);
 
-// ✅ กลับหน้าแรกแบบปลอดภัย ไม่ต้องระบุชื่อไฟล์
+// ✅ กลับหน้าเดิมจริง (ไม่พัง ไม่ reload ใหม่)
 function goHome(){
-    window.location.href = window.location.origin + "/museum/";
+    window.history.back();
 }
 </script>
 
