@@ -53,7 +53,7 @@ curl_close($ch);
 
 $data = json_decode($response,true);
 
-$context = "No artwork data found.";
+$context = "";
 
 if($data && count($data)>0){
 
@@ -87,10 +87,8 @@ else{
    AI REQUEST
 ========================= */
 
-$data = [
-
- "model"=>"openrouter/auto",
-
+$payload = [
+ "model"=>"mistralai/mistral-7b-instruct", // 🔥 เปลี่ยนจาก auto
  "messages"=>[
   [
    "role"=>"system",
@@ -101,62 +99,54 @@ $data = [
    "content"=>$message."\n\n".$context
   ]
  ]
-
 ];
 
 $ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
 
 curl_setopt_array($ch,[
-
  CURLOPT_RETURNTRANSFER=>true,
  CURLOPT_POST=>true,
-
  CURLOPT_HTTPHEADER=>[
- "Authorization: Bearer ".$apiKey,
- "HTTP-Referer: https://museum-ai-guide.wasmer.app",
- "X-Title: Museum AI Guide",
- "Content-Type: application/json"
-],
-
- CURLOPT_POSTFIELDS=>json_encode($data)
-
+  "Authorization: Bearer ".$apiKey,
+  "HTTP-Referer: https://museum-ai-guide.wasmer.app",
+  "X-Title: Museum AI Guide",
+  "Content-Type: application/json"
+ ],
+ CURLOPT_POSTFIELDS=>json_encode($payload)
 ]);
 
 $response = curl_exec($ch);
 
 if($response===false){
-
  echo json_encode([
   "reply"=>"AI Error: ".curl_error($ch)
  ]);
-
  curl_close($ch);
  exit;
-
 }
 
 curl_close($ch);
 
 $result = json_decode($response,true);
 
-if(isset($result["error"])){
+/* =========================
+   DEBUG ERROR (สำคัญมาก)
+========================= */
 
+if(isset($result["error"])){
  echo json_encode([
   "reply"=>"AI Error: ".$result["error"]["message"]
  ]);
  exit;
-
 }
 
 $reply = $result["choices"][0]["message"]["content"] ?? null;
 
 if(!$reply){
-
  echo json_encode([
   "reply"=>"AI ไม่ตอบกลับ"
  ]);
  exit;
-
 }
 
 echo json_encode([
