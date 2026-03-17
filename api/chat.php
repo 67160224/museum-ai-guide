@@ -6,7 +6,7 @@ header("Content-Type: application/json; charset=UTF-8");
    OPENROUTER API
 ========================= */
 
-$apiKey = "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";
+$apiKey = "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";
 
 /* =========================
    RECEIVE MESSAGE
