@@ -64,12 +64,6 @@
 
     <p id="description"></p>
 
-    <div class="mt-3">
-        <button class="btn btn-dark" onclick="playTTS(getVoiceLang())">
-            🔊 Audio Guide
-        </button>
-    </div>
-
 </div>
 
 <div id="error" class="text-danger mt-3 text-center"></div>
@@ -222,6 +216,13 @@ function searchArtwork(){
         currentArtworkData = data;
         displayArtwork(data);
 
+        // 🔊 ให้ ai-voice ทำงานอัตโนมัติ
+        setTimeout(()=>{
+            if(typeof playTTS === "function"){
+                playTTS(getVoiceLang());
+            }
+        },800);
+
         // scroll ลง
         setTimeout(()=>{
             document.getElementById("result").scrollIntoView({
@@ -286,7 +287,7 @@ if(idFromQR){
 }
 
 // =========================
-// VOICE
+// VOICE LANG
 // =========================
 
 function getVoiceLang(){
@@ -315,18 +316,14 @@ async function sendMessage(){
 
     const chatBox = document.getElementById("chatBox");
 
-    chatBox.innerHTML += `
-    <div><b>คุณ:</b> ${escapeHtml(message)}</div>
-    `;
+    chatBox.innerHTML += `<div><b>คุณ:</b> ${escapeHtml(message)}</div>`;
 
     input.value = "";
 
     try{
         const reply = await AISystem.chat(message,currentLanguage);
 
-        chatBox.innerHTML += `
-        <div><b>AI:</b> ${escapeHtml(reply)}</div>
-        `;
+        chatBox.innerHTML += `<div><b>AI:</b> ${escapeHtml(reply)}</div>`;
 
         chatBox.scrollTop = chatBox.scrollHeight;
 
