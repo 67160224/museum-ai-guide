@@ -3,7 +3,7 @@
 header("Content-Type: application/json; charset=UTF-8");
 
 /* =========================
-   OPENROUTER API
+   API KEY
 ========================= */
 
 $apiKey = "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";
@@ -84,11 +84,11 @@ else{
 }
 
 /* =========================
-   AI REQUEST
+   AI REQUEST (FIXED)
 ========================= */
 
 $payload = [
- "model"=>"mistralai/mistral-7b-instruct", // 🔥 เปลี่ยนจาก auto
+ "model"=>"meta-llama/llama-3-8b-instruct", // 🔥 ใช้ตัวนี้แทน
  "messages"=>[
   [
    "role"=>"system",
@@ -101,27 +101,26 @@ $payload = [
  ]
 ];
 
-$ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
+$ch = curl_init();
 
 curl_setopt_array($ch,[
- CURLOPT_RETURNTRANSFER=>true,
- CURLOPT_POST=>true,
- CURLOPT_HTTPHEADER=>[
+ CURLOPT_URL => "https://openrouter.ai/api/v1/chat/completions",
+ CURLOPT_RETURNTRANSFER => true,
+ CURLOPT_POST => true,
+ CURLOPT_HTTPHEADER => [
   "Authorization: Bearer ".$apiKey,
-  "HTTP-Referer: https://museum-ai-guide.wasmer.app",
-  "X-Title: Museum AI Guide",
   "Content-Type: application/json"
  ],
- CURLOPT_POSTFIELDS=>json_encode($payload)
+ CURLOPT_POSTFIELDS => json_encode($payload),
+ CURLOPT_SSL_VERIFYPEER => false
 ]);
 
 $response = curl_exec($ch);
 
-if($response===false){
+if($response === false){
  echo json_encode([
-  "reply"=>"AI Error: ".curl_error($ch)
+  "reply"=>"CURL Error: ".curl_error($ch)
  ]);
- curl_close($ch);
  exit;
 }
 
@@ -130,7 +129,7 @@ curl_close($ch);
 $result = json_decode($response,true);
 
 /* =========================
-   DEBUG ERROR (สำคัญมาก)
+   ERROR HANDLE
 ========================= */
 
 if(isset($result["error"])){
