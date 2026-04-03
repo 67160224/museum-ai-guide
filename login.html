@@ -280,11 +280,11 @@
         const supabaseAuthClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
         // ==========================================
-        // 4. ดักจับเมื่อผู้ใช้กดลิงก์มาจากอีเมล
+        // 4. ระบบดักจับการรีเซ็ตรหัสผ่านเมื่อกดลิงก์จากอีเมล
         // ==========================================
-        // เช็คว่าใน URL มีคำว่า type=recovery ซ่อนอยู่หรือไม่ (กรณีมาจากการลืมรหัสผ่าน)
-        window.addEventListener('load', () => {
-            if (window.location.hash.includes('type=recovery')) {
+        supabaseAuthClient.auth.onAuthStateChange(async (event, session) => {
+            console.log("Auth Event:", event);
+            if (event === "PASSWORD_RECOVERY") {
                 toggleView('update');
             }
         });
@@ -346,15 +346,15 @@
                 alert(translations[lang].alertMissing); return;
             }
 
-            // *** สำคัญ: สั่งให้ลิงก์เด้งกลับมาที่หน้าเว็บไฟล์ปัจจุบัน (login.html) เพื่อให้ดักจับโทเคนได้ ***
-            const currentUrl = window.location.href.split('#')[0].split('?')[0];
+            // ระบุ URL ของหน้า login.html บนเว็บจริงของคุณ
+            const resetUrl = 'https://museum-ai-guide.wasmer.app/login.html';
 
             const { error } = await supabaseAuthClient.auth.resetPasswordForEmail(email, {
-                redirectTo: currentUrl,
+                redirectTo: resetUrl,
             });
 
             if (error) {
-                alert(translations[lang].alertResetError);
+                alert(translations[lang].alertResetError + " " + error.message);
             } else {
                 alert(translations[lang].alertResetSuccess);
                 document.getElementById("resetEmailInput").value = "";
@@ -362,16 +362,15 @@
             }
         }
 
-        // ฟังก์ชันอัปเดตรหัสผ่านใหม่ (ใช้เมื่ออยู่ในสถานะ Recovery เท่านั้น)
         async function updatePassword() {
             const newPassword = document.getElementById("newPasswordInput").value.trim();
             const lang = document.getElementById("langSelect").value;
 
-            if (!newPassword) {
-                alert(translations[lang].alertMissing); return;
+            if (!newPassword || newPassword.length < 6) {
+                alert(translations[lang].regPassPlaceholder);
+                return;
             }
 
-            // ส่งรหัสผ่านใหม่ไปอัปเดตที่ Supabase
             const { error } = await supabaseAuthClient.auth.updateUser({
                 password: newPassword
             });
@@ -380,8 +379,7 @@
                 alert(translations[lang].alertUpdateError + error.message);
             } else {
                 alert(translations[lang].alertUpdateSuccess);
-                window.location.hash = ''; // ล้าง hash ใน URL ทิ้ง
-                window.location.href = 'index.html'; // ล็อคอินให้อัตโนมัติและไปหน้าแรกเลย
+                window.location.href = 'index.html';
             }
         }
 
