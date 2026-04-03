@@ -3,397 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Museum AI Guide</title>
+    <title>เข้าสู่ระบบ - Museum AI Guide</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        body {
-            background-color: #152133;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* ชุดสีเดียวกับหน้าหลัก */
+        :root {
+            --color-dark: #0C2B4E;    /* สีกรมท่าเข้มสุด (พื้นหลังหลัก) */
+            --color-main: #1A3D64;    /* สีกรมท่า (ปุ่มหลัก, หัวข้อ) */
+            --color-accent: #1D546C;  /* สีฟ้าอมเขียว (ส่วนตกแต่ง) */
+            --color-light: #F4F4F4;   /* สีเทาอ่อน (กล่องการ์ด) */
         }
+
+        body {
+            background-color: var(--color-dark);
+            color: var(--color-light);
+            /* เพิ่มพื้นหลังแบบมีมิติเล็กน้อย (Optional) */
+            background-image: radial-gradient(circle at top right, var(--color-main), var(--color-dark));
+        }
+
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 400px;
-            margin: 20px;
-            overflow: hidden;
+            background-color: var(--color-light);
+            color: var(--color-dark);
+        }
+
+        .text-main {
+            color: var(--color-main) !important;
+        }
+
+        .btn-primary {
+            background-color: var(--color-main);
+            border-color: var(--color-main);
+            color: var(--color-light);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--color-dark);
+            border-color: var(--color-dark);
+        }
+
+        .form-control:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 0.25rem rgba(29, 84, 108, 0.25);
         }
     </style>
 </head>
-<body>
 
-    <div class="login-card text-center position-relative">
-        
-        <div class="d-flex justify-content-end mb-3">
-            <select id="langSelect" class="form-select form-select-sm w-auto shadow-sm" onchange="changeLang()">
-                <option value="th">🇹🇭 TH</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="cn">🇨🇳 CN</option>
-            </select>
+<body class="d-flex align-items-center justify-content-center min-vh-100">
+
+    <div class="container px-3">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+                
+                <div class="text-center mb-4">
+                    <h1 class="fw-bold text-white mb-2" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">🏛️ Museum AI</h1>
+                    <p class="text-light opacity-75">นิทรรศการดิจิทัลอัจฉริยะ</p>
+                </div>
+
+                <div class="login-card p-4 p-md-5 rounded-4 shadow-lg border-0">
+                    <h3 class="fw-bold text-center mb-4 text-main">เข้าสู่ระบบ</h3>
+                    
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">อีเมล (Email)</label>
+                            <input type="email" class="form-control form-control-lg" id="email" placeholder="name@example.com" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold">รหัสผ่าน (Password)</label>
+                            <input type="password" class="form-control form-control-lg" id="password" placeholder="••••••••" required>
+                        </div>
+
+                        <div id="loginError" class="alert alert-danger d-none text-center py-2 mb-3" role="alert">
+                            อีเมลหรือรหัสผ่านไม่ถูกต้อง
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
+                            เข้าสู่ระบบ
+                        </button>
+                    </form>
+
+                </div>
+                
+                <div class="text-center mt-4 text-light opacity-50 small">
+                    &copy; 2026 Museum AI Guide
+                </div>
+
+            </div>
         </div>
-
-        <div id="loginSection">
-            <div class="mb-4">
-                <h2 id="titleText" class="fw-bold text-dark">เข้าสู่ระบบ</h2>
-                <p class="text-muted mb-0">Museum AI Guide</p>
-            </div>
-
-            <div class="mb-3 text-start">
-                <input type="email" id="emailInput" class="form-control form-control-lg" placeholder="อีเมล">
-            </div>
-            <div class="mb-1 text-start">
-                <input type="password" id="passwordInput" class="form-control form-control-lg" placeholder="รหัสผ่าน">
-            </div>
-            
-            <div class="text-end mb-3">
-                <a href="javascript:void(0)" id="forgotPasswordLink" onclick="toggleView('forgot')" class="text-decoration-none small text-primary fw-bold">ลืมรหัสผ่าน?</a>
-            </div>
-            
-            <button onclick="loginWithEmail()" class="btn btn-primary w-100 mb-3 py-2 fw-bold shadow-sm" style="border-radius: 10px;">
-                <span id="btnEmailLoginText">เข้าสู่ระบบ</span>
-            </button>
-
-            <div class="mt-2 mb-3 small">
-                <span id="noAccountText" class="text-muted">ยังไม่มีบัญชี?</span> 
-                <a href="javascript:void(0)" id="signUpLinkText" onclick="toggleView('register')" class="text-decoration-none fw-bold text-success">สมัครสมาชิกที่นี่</a>
-            </div>
-
-            <div class="position-relative mb-3 mt-2">
-                <hr>
-                <span class="position-absolute top-50 start-50 translate-middle px-2 text-muted" style="background: rgba(255,255,255,0.95); font-size: 14px;" id="orText">หรือ</span>
-            </div>
-
-            <button onclick="loginWithGoogle()" class="btn btn-outline-dark w-100 mb-3 py-2 d-flex align-items-center justify-content-center shadow-sm" style="border-radius: 10px;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" width="20" class="me-2">
-                <span id="btnGoogleText" class="fw-bold">เข้าสู่ระบบด้วย Google</span>
-            </button>
-
-            <button onclick="loginAsGuest()" class="btn btn-secondary w-100 py-2 shadow-sm" style="border-radius: 10px;">
-                <span id="btnGuestText">เข้าใช้งานแบบผู้เยี่ยมชม</span>
-            </button>
-        </div>
-
-        <div id="forgotSection" style="display: none;">
-            <div class="mb-4">
-                <h2 id="forgotTitleText" class="fw-bold text-dark">รีเซ็ตรหัสผ่าน</h2>
-                <p id="forgotDescText" class="text-muted mb-0 small">กรุณากรอกอีเมลของคุณเพื่อรับลิงก์สำหรับตั้งรหัสผ่านใหม่</p>
-            </div>
-
-            <div class="mb-4 text-start">
-                <input type="email" id="resetEmailInput" class="form-control form-control-lg" placeholder="อีเมล">
-            </div>
-
-            <button onclick="sendResetEmail()" class="btn btn-warning w-100 mb-3 py-2 fw-bold shadow-sm" style="border-radius: 10px;">
-                <span id="btnSendResetText">ส่งลิงก์เปลี่ยนรหัสผ่าน</span>
-            </button>
-
-            <button onclick="toggleView('login')" class="btn btn-light w-100 py-2 shadow-sm" style="border-radius: 10px;">
-                <span id="btnBackLoginText1">กลับไปหน้าเข้าสู่ระบบ</span>
-            </button>
-        </div>
-
-        <div id="registerSection" style="display: none;">
-            <div class="mb-4">
-                <h2 id="regTitleText" class="fw-bold text-success">สมัครสมาชิก</h2>
-                <p id="regDescText" class="text-muted mb-0 small">สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบ</p>
-            </div>
-
-            <div class="mb-3 text-start">
-                <input type="email" id="regEmailInput" class="form-control form-control-lg" placeholder="อีเมล">
-            </div>
-            <div class="mb-3 text-start">
-                <input type="password" id="regPasswordInput" class="form-control form-control-lg" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
-            </div>
-            <div class="mb-4 text-start">
-                <input type="password" id="regConfirmPasswordInput" class="form-control form-control-lg" placeholder="ยืนยันรหัสผ่านอีกครั้ง">
-            </div>
-
-            <button onclick="registerWithEmail()" class="btn btn-success w-100 mb-3 py-2 fw-bold shadow-sm" style="border-radius: 10px;">
-                <span id="btnRegSubmitText">ยืนยันสมัครสมาชิก</span>
-            </button>
-
-            <button onclick="toggleView('login')" class="btn btn-light w-100 py-2 shadow-sm" style="border-radius: 10px;">
-                <span id="btnBackLoginText2">กลับไปหน้าเข้าสู่ระบบ</span>
-            </button>
-        </div>
-
-        <div id="updatePasswordSection" style="display: none;">
-            <div class="mb-4">
-                <h2 id="updateTitleText" class="fw-bold text-primary">ตั้งรหัสผ่านใหม่</h2>
-                <p id="updateDescText" class="text-muted mb-0 small">กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน</p>
-            </div>
-
-            <div class="mb-4 text-start">
-                <input type="password" id="newPasswordInput" class="form-control form-control-lg" placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)">
-            </div>
-
-            <button onclick="updatePassword()" class="btn btn-primary w-100 mb-3 py-2 fw-bold shadow-sm" style="border-radius: 10px;">
-                <span id="btnUpdateSubmitText">บันทึกรหัสผ่านใหม่</span>
-            </button>
-        </div>
-        
     </div>
 
     <script>
-        // 1. ระบบแปลภาษาแบบจัดเต็ม 4 หน้า
-        const translations = {
-            th: { 
-                title: "เข้าสู่ระบบ", emailPlaceholder: "อีเมล", passwordPlaceholder: "รหัสผ่าน",
-                emailLogin: "เข้าสู่ระบบ", forgotLink: "ลืมรหัสผ่าน?", google: "เข้าสู่ระบบด้วย Google", 
-                or: "หรือ", guest: "เข้าใช้งานแบบผู้เยี่ยมชม", alertMissing: "กรุณากรอกข้อมูลให้ครบถ้วน",
-                alertError: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
-                // ลืมรหัสผ่าน
-                forgotTitle: "รีเซ็ตรหัสผ่าน", forgotDesc: "กรุณากรอกอีเมลของคุณเพื่อรับลิงก์สำหรับตั้งรหัสผ่านใหม่",
-                sendReset: "ส่งลิงก์เปลี่ยนรหัสผ่าน", backLogin: "กลับไปหน้าเข้าสู่ระบบ",
-                alertResetSuccess: "ระบบส่งลิงก์ไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบกล่องจดหมาย",
-                alertResetError: "ไม่สามารถส่งอีเมลได้ กรุณาตรวจสอบอีเมลอีกครั้ง",
-                // สมัครสมาชิก
-                noAccount: "ยังไม่มีบัญชี?", signUpLink: "สมัครสมาชิกที่นี่",
-                regTitle: "สมัครสมาชิก", regDesc: "สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบ",
-                regPassPlaceholder: "รหัสผ่าน (อย่างน้อย 6 ตัว)", regConfirmPlaceholder: "ยืนยันรหัสผ่านอีกครั้ง",
-                regSubmit: "ยืนยันสมัครสมาชิก", alertPassMismatch: "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!",
-                alertRegSuccess: "สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี หรือเข้าสู่ระบบได้เลย",
-                alertRegError: "สมัครสมาชิกไม่สำเร็จ: ",
-                // ตั้งรหัสผ่านใหม่
-                updateTitle: "ตั้งรหัสผ่านใหม่", updateDesc: "กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน",
-                newPassPlaceholder: "รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)", updateSubmit: "บันทึกรหัสผ่านใหม่",
-                alertUpdateSuccess: "เปลี่ยนรหัสผ่านสำเร็จ! กำลังพาท่านเข้าสู่ระบบ...",
-                alertUpdateError: "เปลี่ยนรหัสผ่านไม่สำเร็จ: "
-            },
-            en: { 
-                title: "Login", emailPlaceholder: "Email", passwordPlaceholder: "Password",
-                emailLogin: "Login", forgotLink: "Forgot Password?", google: "Sign in with Google", 
-                or: "or", guest: "Continue as Guest", alertMissing: "Please fill in all fields",
-                alertError: "Invalid email or password",
-                // Forgot Password
-                forgotTitle: "Reset Password", forgotDesc: "Enter your email to receive a password reset link.",
-                sendReset: "Send Reset Link", backLogin: "Back to Login",
-                alertResetSuccess: "Reset link sent! Please check your inbox.",
-                alertResetError: "Failed to send email. Please check your email address.",
-                // Register
-                noAccount: "Don't have an account?", signUpLink: "Sign up here",
-                regTitle: "Sign Up", regDesc: "Create a new account to access the system",
-                regPassPlaceholder: "Password (min 6 chars)", regConfirmPlaceholder: "Confirm Password",
-                regSubmit: "Create Account", alertPassMismatch: "Passwords do not match!",
-                alertRegSuccess: "Registration successful! Please check your email to verify or login now.",
-                alertRegError: "Registration failed: ",
-                // Update Password
-                updateTitle: "Set New Password", updateDesc: "Please enter your new password.",
-                newPassPlaceholder: "New Password (min 6 chars)", updateSubmit: "Save New Password",
-                alertUpdateSuccess: "Password updated successfully! Logging you in...",
-                alertUpdateError: "Failed to update password: "
-            },
-            cn: { 
-                title: "登录", emailPlaceholder: "电子邮件", passwordPlaceholder: "密码",
-                emailLogin: "登录", forgotLink: "忘记密码？", google: "使用 Google 登录", 
-                or: "或", guest: "作为访客继续", alertMissing: "请填写所有必填项",
-                alertError: "电子邮件或密码无效",
-                // Forgot Password
-                forgotTitle: "重置密码", forgotDesc: "请输入您的电子邮件以接收密码重置链接。",
-                sendReset: "发送重置链接", backLogin: "返回登录",
-                alertResetSuccess: "重置链接已发送！请检查您的收件箱。",
-                alertResetError: "发送邮件失败，请检查您的电子邮件地址。",
-                // Register
-                noAccount: "还没有账号？", signUpLink: "点击这里注册",
-                regTitle: "注册", regDesc: "创建一个新帐户以访问系统",
-                regPassPlaceholder: "密码（至少 6 个字符）", regConfirmPlaceholder: "确认密码",
-                regSubmit: "确认注册", alertPassMismatch: "两次输入的密码不一致！",
-                alertRegSuccess: "注册成功！请检查您的电子邮件进行验证，或直接登录。",
-                alertRegError: "注册失败： ",
-                // Update Password
-                updateTitle: "设置新密码", updateDesc: "请输入您的新密码。",
-                newPassPlaceholder: "新密码（至少 6 个字符）", updateSubmit: "保存新密码",
-                alertUpdateSuccess: "密码更新成功！正在为您登录...",
-                alertUpdateError: "更新密码失败： "
-            }
-        };
-
-        function changeLang() {
-            const lang = document.getElementById("langSelect").value;
-            // Login
-            document.getElementById("titleText").innerText = translations[lang].title;
-            document.getElementById("emailInput").placeholder = translations[lang].emailPlaceholder;
-            document.getElementById("passwordInput").placeholder = translations[lang].passwordPlaceholder;
-            document.getElementById("btnEmailLoginText").innerText = translations[lang].emailLogin;
-            document.getElementById("forgotPasswordLink").innerText = translations[lang].forgotLink;
-            document.getElementById("noAccountText").innerText = translations[lang].noAccount;
-            document.getElementById("signUpLinkText").innerText = translations[lang].signUpLink;
-            document.getElementById("btnGoogleText").innerText = translations[lang].google;
-            document.getElementById("orText").innerText = translations[lang].or;
-            document.getElementById("btnGuestText").innerText = translations[lang].guest;
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            // Forgot
-            document.getElementById("forgotTitleText").innerText = translations[lang].forgotTitle;
-            document.getElementById("forgotDescText").innerText = translations[lang].forgotDesc;
-            document.getElementById("resetEmailInput").placeholder = translations[lang].emailPlaceholder;
-            document.getElementById("btnSendResetText").innerText = translations[lang].sendReset;
-            document.getElementById("btnBackLoginText1").innerText = translations[lang].backLogin;
+            // ดึงค่าจากฟอร์ม
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
 
-            // Register
-            document.getElementById("regTitleText").innerText = translations[lang].regTitle;
-            document.getElementById("regDescText").innerText = translations[lang].regDesc;
-            document.getElementById("regEmailInput").placeholder = translations[lang].emailPlaceholder;
-            document.getElementById("regPasswordInput").placeholder = translations[lang].regPassPlaceholder;
-            document.getElementById("regConfirmPasswordInput").placeholder = translations[lang].regConfirmPlaceholder;
-            document.getElementById("btnRegSubmitText").innerText = translations[lang].regSubmit;
-            document.getElementById("btnBackLoginText2").innerText = translations[lang].backLogin;
-
-            // Update Password
-            document.getElementById("updateTitleText").innerText = translations[lang].updateTitle;
-            document.getElementById("updateDescText").innerText = translations[lang].updateDesc;
-            document.getElementById("newPasswordInput").placeholder = translations[lang].newPassPlaceholder;
-            document.getElementById("btnUpdateSubmitText").innerText = translations[lang].updateSubmit;
-        }
-
-        // 2. ฟังก์ชันสลับหน้าจอ (Login <-> Forgot <-> Register <-> Update)
-        function toggleView(view) {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('forgotSection').style.display = 'none';
-            document.getElementById('registerSection').style.display = 'none';
-            document.getElementById('updatePasswordSection').style.display = 'none';
-
-            if (view === 'forgot') {
-                document.getElementById('forgotSection').style.display = 'block';
-            } else if (view === 'register') {
-                document.getElementById('registerSection').style.display = 'block';
-            } else if (view === 'update') {
-                document.getElementById('updatePasswordSection').style.display = 'block';
-            } else {
-                document.getElementById('loginSection').style.display = 'block';
-            }
-        }
-
-        // 3. ตั้งค่า Supabase
-        const mySupabaseUrl = 'https://poderwfuvejrsrqydcbj.supabase.co';
-        const mySupabaseKey = 'sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen'; 
-        const supabaseAuthClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
-
-        // ==========================================
-        // 4. ระบบดักจับการรีเซ็ตรหัสผ่านเมื่อกดลิงก์จากอีเมล
-        // ==========================================
-        supabaseAuthClient.auth.onAuthStateChange(async (event, session) => {
-            console.log("Auth Event:", event);
-            if (event === "PASSWORD_RECOVERY") {
-                toggleView('update');
-            }
+            // --- ใส่โค้ดเชื่อมต่อ Supabase หรือ Database ของคุณตรงนี้ ---
+            // ตัวอย่าง:
+            /*
+            supabase.auth.signInWithPassword({ email: email, password: password })
+                .then(response => {
+                    if (response.error) {
+                        errorDiv.classList.remove('d-none');
+                        errorDiv.innerText = response.error.message;
+                    } else {
+                        window.location.href = 'index.html'; // ล็อคอินสำเร็จ ไปหน้าหลัก
+                    }
+                });
+            */
+            
+            // ทดสอบการแสดงผล (ลบออกเมื่อใช้โค้ดจริง)
+            console.log("กำลังเข้าสู่ระบบด้วย:", email);
+            errorDiv.classList.add('d-none'); // ซ่อน error หากกำลังโหลด
         });
-
-        // ==========================================
-        // ฟังก์ชันระบบสมาชิก
-        // ==========================================
-
-        async function loginWithEmail() {
-            const email = document.getElementById("emailInput").value.trim();
-            const password = document.getElementById("passwordInput").value.trim();
-            const lang = document.getElementById("langSelect").value;
-
-            if (!email || !password) {
-                alert(translations[lang].alertMissing); return;
-            }
-
-            const { error } = await supabaseAuthClient.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                alert(translations[lang].alertError);
-            } else {
-                window.location.href = 'index.html';
-            }
-        }
-
-        async function registerWithEmail() {
-            const email = document.getElementById("regEmailInput").value.trim();
-            const password = document.getElementById("regPasswordInput").value.trim();
-            const confirmPass = document.getElementById("regConfirmPasswordInput").value.trim();
-            const lang = document.getElementById("langSelect").value;
-
-            if (!email || !password || !confirmPass) {
-                alert(translations[lang].alertMissing); return;
-            }
-
-            if (password !== confirmPass) {
-                alert(translations[lang].alertPassMismatch); return;
-            }
-
-            const { error } = await supabaseAuthClient.auth.signUp({ email, password });
-
-            if (error) {
-                alert(translations[lang].alertRegError + error.message);
-            } else {
-                alert(translations[lang].alertRegSuccess);
-                document.getElementById("regEmailInput").value = "";
-                document.getElementById("regPasswordInput").value = "";
-                document.getElementById("regConfirmPasswordInput").value = "";
-                toggleView('login');
-            }
-        }
-
-        async function sendResetEmail() {
-            const email = document.getElementById("resetEmailInput").value.trim();
-            const lang = document.getElementById("langSelect").value;
-
-            if (!email) {
-                alert(translations[lang].alertMissing); return;
-            }
-
-            // ระบุ URL ของหน้า login.html บนเว็บจริงของคุณ
-            const resetUrl = 'https://museum-ai-guide.wasmer.app/login.html';
-
-            const { error } = await supabaseAuthClient.auth.resetPasswordForEmail(email, {
-                redirectTo: resetUrl,
-            });
-
-            if (error) {
-                alert(translations[lang].alertResetError + " " + error.message);
-            } else {
-                alert(translations[lang].alertResetSuccess);
-                document.getElementById("resetEmailInput").value = "";
-                toggleView('login');
-            }
-        }
-
-        async function updatePassword() {
-            const newPassword = document.getElementById("newPasswordInput").value.trim();
-            const lang = document.getElementById("langSelect").value;
-
-            if (!newPassword || newPassword.length < 6) {
-                alert(translations[lang].regPassPlaceholder);
-                return;
-            }
-
-            const { error } = await supabaseAuthClient.auth.updateUser({
-                password: newPassword
-            });
-
-            if (error) {
-                alert(translations[lang].alertUpdateError + error.message);
-            } else {
-                alert(translations[lang].alertUpdateSuccess);
-                window.location.href = 'index.html';
-            }
-        }
-
-        async function loginWithGoogle() {
-            await supabaseAuthClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: 'https://museum-ai-guide.wasmer.app/index.html' }
-            });
-        }
-
-        function loginAsGuest() {
-            localStorage.setItem('guestMode', 'true');
-            window.location.href = 'index.html';
-        }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
