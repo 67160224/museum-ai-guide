@@ -150,6 +150,8 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
+
     <script>
         // =========================
         // ระบบแปลภาษา (Translation)
@@ -199,7 +201,7 @@
             }
         };
 
-        let currentLoginErrorMsg = loginTranslations["th"].errorMsg;
+        let currentErrorMsg = loginTranslations["th"].errorMsg;
 
         document.getElementById("loginLanguage").addEventListener("change", function() {
             const lang = this.value;
@@ -218,40 +220,44 @@
             document.getElementById("txt-register").innerText = t.register;
 
             // อัปเดตข้อความ Error (ถ้าแสดงอยู่)
-            currentLoginErrorMsg = t.errorMsg;
+            currentErrorMsg = t.errorMsg;
             const errorBox = document.getElementById("loginError");
             if (!errorBox.classList.contains("d-none")) {
-                errorBox.innerText = currentLoginErrorMsg;
+                errorBox.innerText = currentErrorMsg;
             }
         });
 
         // =========================
-        // การทำงานของปุ่มต่างๆ
+        // ระบบ Login จริงด้วย Supabase
         // =========================
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorBox = document.getElementById('loginError');
 
-            console.log("เข้าสู่ระบบด้วย Email:", email);
-            
-            // จำลองการเกิด Error เพื่อทดสอบ (ลบออกเมื่อใช้จริง)
-            if(email !== "admin@test.com") {
-                errorBox.innerText = currentLoginErrorMsg;
+            // เรียกใช้ Supabase Auth
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                errorBox.innerText = currentErrorMsg;
                 errorBox.classList.remove("d-none");
             } else {
                 errorBox.classList.add("d-none");
-                // โค้ดไปหน้าหลักเมื่อสำเร็จ
+                localStorage.removeItem('guestMode'); // ล้างค่า Guest ถ้าล็อคอินจริงสำเร็จ
+                window.location.href = "index.html"; 
             }
         });
 
-        function loginWithGoogle() {
-            console.log("เข้าสู่ระบบด้วย Google");
+        async function loginWithGoogle() {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+            if (error) console.error("Error with Google Login:", error.message);
         }
 
         function loginAsGuest() {
-            console.log("เข้าใช้งานแบบ Guest");
+            localStorage.setItem('guestMode', 'true'); // บันทึกสถานะ Guest ไว้ในเครื่อง
             window.location.href = "index.html"; 
         }
     </script>
