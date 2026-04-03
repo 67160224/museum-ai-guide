@@ -12,7 +12,7 @@
     <script src="check-auth.js"></script>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
@@ -39,56 +39,62 @@
         </div>
     </nav>
 
-    <main class="flex-grow-1">
+    <main class="flex-grow-1 py-4">
 
-        <section id="home" class="wrapper">
+        <section id="home" class="container wrapper">
             
-            <div class="text-center text-white mb-4">
+            <div class="text-center text-dark mb-4">
                 <h1 class="fw-bold" style="font-size: 2.5rem;">Museum AI Guide</h1>
-                <p id="subTitle" class="lead text-light">นิทรรศการดิจิทัลอัจฉริยะ</p>
+                <p id="subTitle" class="lead text-secondary">นิทรรศการดิจิทัลอัจฉริยะ</p>
             </div>
 
-            <div class="main-card">
+            <div class="main-card bg-white p-3 p-md-4 rounded shadow-sm mx-auto" style="max-width: 500px;">
                 
-                <div class="input-group">
-                    <input type="text" id="artworkId" class="form-control" placeholder="ใส่รหัสผลงาน">
-                    <button id="searchBtn" class="btn btn-primary">🔍 ค้นหา</button>
-                    <button id="scanBtn" class="btn btn-success">📷 Scan QR</button>
+                <div class="mb-4">
+                    <input type="text" id="artworkId" class="form-control form-control-lg mb-2" placeholder="ใส่รหัสผลงาน">
+                    <div class="d-flex gap-2">
+                        <button id="searchBtn" class="btn btn-primary flex-fill fw-bold">🔍 ค้นหา</button>
+                        <button id="scanBtn" class="btn btn-success flex-fill fw-bold">📷 Scan QR</button>
+                    </div>
                 </div>
 
                 <div id="result" class="text-center mt-4" style="display:none;">
-                    <img id="image" class="img-fluid mb-3">
-                    <h2 id="title"></h2>
-                    <h5 id="artist"></h5>
-                    <p id="description"></p>
+                    <hr>
+                    <img id="image" class="img-fluid rounded mb-3 shadow-sm">
+                    <h3 id="title" class="fw-bold"></h3>
+                    <h6 id="artist" class="text-muted"></h6>
+                    <p id="description" class="text-start mt-3 p-3 bg-light rounded"></p>
                 </div>
 
-                <div id="error" class="text-danger mt-3 text-center"></div>
+                <div id="error" class="text-danger mt-3 text-center fw-bold"></div>
 
-                <hr>
+                <hr class="my-4">
 
-                <h5>🤖 AI Chatbot</h5>
-                <div id="chatBox" style="height:220px; overflow-y:auto; background:#f0f6fd; padding:10px; border-radius:8px; margin-bottom:10px;"></div>
+                <div class="text-center mb-3">
+                    <h5 class="fw-bold mb-0">🤖 AI Chatbot</h5>
+                </div>
+                
+                <div id="chatBox" class="border rounded p-3 mb-3 shadow-sm bg-light" style="height:250px; overflow-y:auto; font-size: 0.95rem;"></div>
                 
                 <div class="input-group">
                     <input type="text" id="userInput" class="form-control" placeholder="พิมพ์คำถาม...">
-                    <button class="btn btn-primary" onclick="sendMessage()">ส่ง</button>
+                    <button class="btn btn-primary fw-bold" onclick="sendMessage()">ส่ง</button>
                 </div>
 
             </div>
         </section>
 
-        <section id="qr-section" class="py-5 text-center text-white" style="background: rgba(0,0,0,0.2);">
+        <section id="qr-section" class="py-5 text-center text-dark mt-5 bg-white border-top">
             <div class="container">
                 <h3 class="fw-bold mb-4">📱 สแกนเพื่อเข้าใช้งานบนมือถือ</h3>
-                <div class="bg-white p-3 rounded-4 d-inline-block shadow-lg">
+                <div class="bg-light p-3 rounded-4 d-inline-block shadow-sm border">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://museum-ai-guide.wasmer.app/index.html" alt="QR Code" class="img-fluid rounded">
                     <p class="mt-2 text-dark mb-0 fw-bold">Scan Me</p>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="py-5 text-center text-white" style="background: rgba(0,0,0,0.4);">
+        <section id="contact" class="py-5 text-center text-white bg-dark">
             <div class="container">
                 <h3 class="fw-bold mb-4">📞 ติดต่อเรา (Contact)</h3>
                 <p class="mb-1"><strong>Email:</strong> admin@museum-ai.com</p>
@@ -99,9 +105,9 @@
 
     </main>
 
-    <footer class="bg-dark text-white text-center py-4 mt-auto">
+    <footer class="bg-black text-white text-center py-3 mt-auto">
         <div class="container">
-            <p class="mb-0">&copy; 2026 Museum AI Guide | จัดทำโดย <strong>[ใส่ชื่อของคุณที่นี่]</strong></p>
+            <p class="mb-0 small">&copy; 2026 Museum AI Guide | จัดทำโดย <strong>[ใส่ชื่อของคุณที่นี่]</strong></p>
         </div>
     </footer>
 
@@ -247,15 +253,19 @@
         if(!message) return;
 
         const chatBox = document.getElementById("chatBox");
-        chatBox.innerHTML += `<div><b style="color:#2563eb;">คุณ:</b> ${escapeHtml(message)}</div>`;
+        chatBox.innerHTML += `<div class="text-end mb-2"><span class="bg-primary text-white p-2 rounded-3 d-inline-block">${escapeHtml(message)}</span></div>`;
         input.value = "";
+
+        // Scroll to bottom immediately after user sends message
+        chatBox.scrollTop = chatBox.scrollHeight;
 
         try{
             const reply = await AISystem.chat(message,currentLanguage);
-            chatBox.innerHTML += `<div><b style="color:#059669;">AI:</b> ${escapeHtml(reply)}</div><br>`;
+            chatBox.innerHTML += `<div class="text-start mb-2"><span class="bg-white border p-2 rounded-3 d-inline-block text-dark"><b>AI:</b> ${escapeHtml(reply)}</span></div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
         }catch(e){
-            chatBox.innerHTML += `<div style="color:red;">AI Error</div><br>`;
+            chatBox.innerHTML += `<div class="text-center text-danger small mt-2">เกิดข้อผิดพลาดในการเชื่อมต่อ AI</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
     }
     </script>
