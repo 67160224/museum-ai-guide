@@ -37,7 +37,6 @@ async function handleAuth() {
         } else {
             messageEl.innerText = "เข้าสู่ระบบสำเร็จ! กำลังพาไปหน้าหลัก...";
             messageEl.style.color = "green";
-            // ตรงนี้ตั้งไว้ว่าล็อคอินผ่านแล้วให้ไปหน้า index.html (เปลี่ยนชื่อไฟล์ได้ถ้าหน้าหลักคุณชื่ออื่น)
             setTimeout(() => { window.location.href = "index.html"; }, 1000);
         }
     } else {
@@ -58,5 +57,12 @@ async function loginWithGoogle() {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
     });
-    // หมายเหตุ: เมื่อคำสั่งนี้ทำงาน มันจะพาผู้ใช้เด้งไปหน้าล็อคอินของ Google อัตโนมัติ
+}
+
+// 5. ฟังก์ชันเข้าใช้งานแบบไม่ล็อคอิน (Guest Mode)
+function continueAsGuest() {
+    // เซฟสถานะลงเบราว์เซอร์ว่าเป็น Guest
+    localStorage.setItem('guestMode', 'true');
+    // ส่งไปหน้าหลักทันที
+    window.location.href = "index.html";
 }
