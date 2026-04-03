@@ -127,11 +127,26 @@
                 <span id="btnBackLoginText2">กลับไปหน้าเข้าสู่ระบบ</span>
             </button>
         </div>
+
+        <div id="updatePasswordSection" style="display: none;">
+            <div class="mb-4">
+                <h2 id="updateTitleText" class="fw-bold text-primary">ตั้งรหัสผ่านใหม่</h2>
+                <p id="updateDescText" class="text-muted mb-0 small">กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน</p>
+            </div>
+
+            <div class="mb-4 text-start">
+                <input type="password" id="newPasswordInput" class="form-control form-control-lg" placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)">
+            </div>
+
+            <button onclick="updatePassword()" class="btn btn-primary w-100 mb-3 py-2 fw-bold shadow-sm" style="border-radius: 10px;">
+                <span id="btnUpdateSubmitText">บันทึกรหัสผ่านใหม่</span>
+            </button>
+        </div>
         
     </div>
 
     <script>
-        // 1. ระบบเปลี่ยนภาษาแบบจัดเต็ม 3 หน้า
+        // 1. ระบบแปลภาษาแบบจัดเต็ม 4 หน้า
         const translations = {
             th: { 
                 title: "เข้าสู่ระบบ", emailPlaceholder: "อีเมล", passwordPlaceholder: "รหัสผ่าน",
@@ -149,7 +164,12 @@
                 regPassPlaceholder: "รหัสผ่าน (อย่างน้อย 6 ตัว)", regConfirmPlaceholder: "ยืนยันรหัสผ่านอีกครั้ง",
                 regSubmit: "ยืนยันสมัครสมาชิก", alertPassMismatch: "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!",
                 alertRegSuccess: "สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี หรือเข้าสู่ระบบได้เลย",
-                alertRegError: "สมัครสมาชิกไม่สำเร็จ: "
+                alertRegError: "สมัครสมาชิกไม่สำเร็จ: ",
+                // ตั้งรหัสผ่านใหม่
+                updateTitle: "ตั้งรหัสผ่านใหม่", updateDesc: "กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน",
+                newPassPlaceholder: "รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)", updateSubmit: "บันทึกรหัสผ่านใหม่",
+                alertUpdateSuccess: "เปลี่ยนรหัสผ่านสำเร็จ! กำลังพาท่านเข้าสู่ระบบ...",
+                alertUpdateError: "เปลี่ยนรหัสผ่านไม่สำเร็จ: "
             },
             en: { 
                 title: "Login", emailPlaceholder: "Email", passwordPlaceholder: "Password",
@@ -167,7 +187,12 @@
                 regPassPlaceholder: "Password (min 6 chars)", regConfirmPlaceholder: "Confirm Password",
                 regSubmit: "Create Account", alertPassMismatch: "Passwords do not match!",
                 alertRegSuccess: "Registration successful! Please check your email to verify or login now.",
-                alertRegError: "Registration failed: "
+                alertRegError: "Registration failed: ",
+                // Update Password
+                updateTitle: "Set New Password", updateDesc: "Please enter your new password.",
+                newPassPlaceholder: "New Password (min 6 chars)", updateSubmit: "Save New Password",
+                alertUpdateSuccess: "Password updated successfully! Logging you in...",
+                alertUpdateError: "Failed to update password: "
             },
             cn: { 
                 title: "登录", emailPlaceholder: "电子邮件", passwordPlaceholder: "密码",
@@ -185,13 +210,18 @@
                 regPassPlaceholder: "密码（至少 6 个字符）", regConfirmPlaceholder: "确认密码",
                 regSubmit: "确认注册", alertPassMismatch: "两次输入的密码不一致！",
                 alertRegSuccess: "注册成功！请检查您的电子邮件进行验证，或直接登录。",
-                alertRegError: "注册失败： "
+                alertRegError: "注册失败： ",
+                // Update Password
+                updateTitle: "设置新密码", updateDesc: "请输入您的新密码。",
+                newPassPlaceholder: "新密码（至少 6 个字符）", updateSubmit: "保存新密码",
+                alertUpdateSuccess: "密码更新成功！正在为您登录...",
+                alertUpdateError: "更新密码失败： "
             }
         };
 
         function changeLang() {
             const lang = document.getElementById("langSelect").value;
-            // หน้า Login
+            // Login
             document.getElementById("titleText").innerText = translations[lang].title;
             document.getElementById("emailInput").placeholder = translations[lang].emailPlaceholder;
             document.getElementById("passwordInput").placeholder = translations[lang].passwordPlaceholder;
@@ -203,14 +233,14 @@
             document.getElementById("orText").innerText = translations[lang].or;
             document.getElementById("btnGuestText").innerText = translations[lang].guest;
             
-            // หน้าลืมรหัสผ่าน
+            // Forgot
             document.getElementById("forgotTitleText").innerText = translations[lang].forgotTitle;
             document.getElementById("forgotDescText").innerText = translations[lang].forgotDesc;
             document.getElementById("resetEmailInput").placeholder = translations[lang].emailPlaceholder;
             document.getElementById("btnSendResetText").innerText = translations[lang].sendReset;
             document.getElementById("btnBackLoginText1").innerText = translations[lang].backLogin;
 
-            // หน้าสมัครสมาชิก
+            // Register
             document.getElementById("regTitleText").innerText = translations[lang].regTitle;
             document.getElementById("regDescText").innerText = translations[lang].regDesc;
             document.getElementById("regEmailInput").placeholder = translations[lang].emailPlaceholder;
@@ -218,18 +248,27 @@
             document.getElementById("regConfirmPasswordInput").placeholder = translations[lang].regConfirmPlaceholder;
             document.getElementById("btnRegSubmitText").innerText = translations[lang].regSubmit;
             document.getElementById("btnBackLoginText2").innerText = translations[lang].backLogin;
+
+            // Update Password
+            document.getElementById("updateTitleText").innerText = translations[lang].updateTitle;
+            document.getElementById("updateDescText").innerText = translations[lang].updateDesc;
+            document.getElementById("newPasswordInput").placeholder = translations[lang].newPassPlaceholder;
+            document.getElementById("btnUpdateSubmitText").innerText = translations[lang].updateSubmit;
         }
 
-        // 2. ฟังก์ชันสลับหน้าจอ (Login <-> Forgot <-> Register)
+        // 2. ฟังก์ชันสลับหน้าจอ (Login <-> Forgot <-> Register <-> Update)
         function toggleView(view) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('forgotSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('updatePasswordSection').style.display = 'none';
 
             if (view === 'forgot') {
                 document.getElementById('forgotSection').style.display = 'block';
             } else if (view === 'register') {
                 document.getElementById('registerSection').style.display = 'block';
+            } else if (view === 'update') {
+                document.getElementById('updatePasswordSection').style.display = 'block';
             } else {
                 document.getElementById('loginSection').style.display = 'block';
             }
@@ -241,33 +280,37 @@
         const supabaseAuthClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
         // ==========================================
+        // 4. ดักจับเมื่อผู้ใช้กดลิงก์มาจากอีเมล
+        // ==========================================
+        // เช็คว่าใน URL มีคำว่า type=recovery ซ่อนอยู่หรือไม่ (กรณีมาจากการลืมรหัสผ่าน)
+        window.addEventListener('load', () => {
+            if (window.location.hash.includes('type=recovery')) {
+                toggleView('update');
+            }
+        });
+
+        // ==========================================
         // ฟังก์ชันระบบสมาชิก
         // ==========================================
 
-        // เข้าสู่ระบบด้วย Email
         async function loginWithEmail() {
             const email = document.getElementById("emailInput").value.trim();
             const password = document.getElementById("passwordInput").value.trim();
             const lang = document.getElementById("langSelect").value;
 
             if (!email || !password) {
-                alert(translations[lang].alertMissing);
-                return;
+                alert(translations[lang].alertMissing); return;
             }
 
-            const { data, error } = await supabaseAuthClient.auth.signInWithPassword({
-                email: email, password: password,
-            });
+            const { error } = await supabaseAuthClient.auth.signInWithPassword({ email, password });
 
             if (error) {
-                console.error("Login Error:", error.message);
                 alert(translations[lang].alertError);
             } else {
                 window.location.href = 'index.html';
             }
         }
 
-        // สมัครสมาชิกใหม่ (Register)
         async function registerWithEmail() {
             const email = document.getElementById("regEmailInput").value.trim();
             const password = document.getElementById("regPasswordInput").value.trim();
@@ -275,25 +318,19 @@
             const lang = document.getElementById("langSelect").value;
 
             if (!email || !password || !confirmPass) {
-                alert(translations[lang].alertMissing);
-                return;
+                alert(translations[lang].alertMissing); return;
             }
 
             if (password !== confirmPass) {
-                alert(translations[lang].alertPassMismatch);
-                return;
+                alert(translations[lang].alertPassMismatch); return;
             }
 
-            const { data, error } = await supabaseAuthClient.auth.signUp({
-                email: email, password: password,
-            });
+            const { error } = await supabaseAuthClient.auth.signUp({ email, password });
 
             if (error) {
-                console.error("Register Error:", error.message);
                 alert(translations[lang].alertRegError + error.message);
             } else {
                 alert(translations[lang].alertRegSuccess);
-                // เคลียร์ฟอร์มและเด้งกลับหน้าล็อคอิน
                 document.getElementById("regEmailInput").value = "";
                 document.getElementById("regPasswordInput").value = "";
                 document.getElementById("regConfirmPasswordInput").value = "";
@@ -301,22 +338,22 @@
             }
         }
 
-        // ส่งอีเมลรีเซ็ตรหัสผ่าน
         async function sendResetEmail() {
             const email = document.getElementById("resetEmailInput").value.trim();
             const lang = document.getElementById("langSelect").value;
 
             if (!email) {
-                alert(translations[lang].alertMissing);
-                return;
+                alert(translations[lang].alertMissing); return;
             }
 
-            const { data, error } = await supabaseAuthClient.auth.resetPasswordForEmail(email, {
-                redirectTo: 'https://museum-ai-guide.wasmer.app/index.html',
+            // *** สำคัญ: สั่งให้ลิงก์เด้งกลับมาที่หน้าเว็บไฟล์ปัจจุบัน (login.html) เพื่อให้ดักจับโทเคนได้ ***
+            const currentUrl = window.location.href.split('#')[0].split('?')[0];
+
+            const { error } = await supabaseAuthClient.auth.resetPasswordForEmail(email, {
+                redirectTo: currentUrl,
             });
 
             if (error) {
-                console.error("Reset Error:", error.message);
                 alert(translations[lang].alertResetError);
             } else {
                 alert(translations[lang].alertResetSuccess);
@@ -325,7 +362,29 @@
             }
         }
 
-        // เข้าสู่ระบบด้วย Google
+        // ฟังก์ชันอัปเดตรหัสผ่านใหม่ (ใช้เมื่ออยู่ในสถานะ Recovery เท่านั้น)
+        async function updatePassword() {
+            const newPassword = document.getElementById("newPasswordInput").value.trim();
+            const lang = document.getElementById("langSelect").value;
+
+            if (!newPassword) {
+                alert(translations[lang].alertMissing); return;
+            }
+
+            // ส่งรหัสผ่านใหม่ไปอัปเดตที่ Supabase
+            const { error } = await supabaseAuthClient.auth.updateUser({
+                password: newPassword
+            });
+
+            if (error) {
+                alert(translations[lang].alertUpdateError + error.message);
+            } else {
+                alert(translations[lang].alertUpdateSuccess);
+                window.location.hash = ''; // ล้าง hash ใน URL ทิ้ง
+                window.location.href = 'index.html'; // ล็อคอินให้อัตโนมัติและไปหน้าแรกเลย
+            }
+        }
+
         async function loginWithGoogle() {
             await supabaseAuthClient.auth.signInWithOAuth({
                 provider: 'google',
@@ -333,7 +392,6 @@
             });
         }
 
-        // เข้าสู่ระบบแบบ Guest
         function loginAsGuest() {
             localStorage.setItem('guestMode', 'true');
             window.location.href = 'index.html';
