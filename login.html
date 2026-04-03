@@ -27,7 +27,7 @@
             width: 100%;
             max-width: 400px;
             margin: 20px;
-            overflow: hidden; /* ป้องกันเนื้อหาล้นตอนสลับหน้า */
+            overflow: hidden;
         }
     </style>
 </head>
@@ -64,6 +64,11 @@
                 <span id="btnEmailLoginText">เข้าสู่ระบบ</span>
             </button>
 
+            <div class="mt-2 mb-3 small">
+                <span id="noAccountText" class="text-muted">ยังไม่มีบัญชี?</span> 
+                <a href="javascript:void(0)" id="signUpLinkText" onclick="toggleView('register')" class="text-decoration-none fw-bold text-success">สมัครสมาชิกที่นี่</a>
+            </div>
+
             <div class="position-relative mb-3 mt-2">
                 <hr>
                 <span class="position-absolute top-50 start-50 translate-middle px-2 text-muted" style="background: rgba(255,255,255,0.95); font-size: 14px;" id="orText">หรือ</span>
@@ -94,71 +99,93 @@
             </button>
 
             <button onclick="toggleView('login')" class="btn btn-light w-100 py-2 shadow-sm" style="border-radius: 10px;">
-                <span id="btnBackLoginText">กลับไปหน้าเข้าสู่ระบบ</span>
+                <span id="btnBackLoginText1">กลับไปหน้าเข้าสู่ระบบ</span>
+            </button>
+        </div>
+
+        <div id="registerSection" style="display: none;">
+            <div class="mb-4">
+                <h2 id="regTitleText" class="fw-bold text-success">สมัครสมาชิก</h2>
+                <p id="regDescText" class="text-muted mb-0 small">สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบ</p>
+            </div>
+
+            <div class="mb-3 text-start">
+                <input type="email" id="regEmailInput" class="form-control form-control-lg" placeholder="อีเมล">
+            </div>
+            <div class="mb-3 text-start">
+                <input type="password" id="regPasswordInput" class="form-control form-control-lg" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
+            </div>
+            <div class="mb-4 text-start">
+                <input type="password" id="regConfirmPasswordInput" class="form-control form-control-lg" placeholder="ยืนยันรหัสผ่านอีกครั้ง">
+            </div>
+
+            <button onclick="registerWithEmail()" class="btn btn-success w-100 mb-3 py-2 fw-bold shadow-sm" style="border-radius: 10px;">
+                <span id="btnRegSubmitText">ยืนยันสมัครสมาชิก</span>
+            </button>
+
+            <button onclick="toggleView('login')" class="btn btn-light w-100 py-2 shadow-sm" style="border-radius: 10px;">
+                <span id="btnBackLoginText2">กลับไปหน้าเข้าสู่ระบบ</span>
             </button>
         </div>
         
     </div>
 
     <script>
-        // 1. ระบบเปลี่ยนภาษา (รวมคำศัพท์สำหรับหน้าลืมรหัสผ่านด้วย)
+        // 1. ระบบเปลี่ยนภาษาแบบจัดเต็ม 3 หน้า
         const translations = {
             th: { 
-                title: "เข้าสู่ระบบ",
-                emailPlaceholder: "อีเมล",
-                passwordPlaceholder: "รหัสผ่าน",
-                emailLogin: "เข้าสู่ระบบ",
-                forgotLink: "ลืมรหัสผ่าน?",
-                google: "เข้าสู่ระบบด้วย Google", 
-                or: "หรือ", 
-                guest: "เข้าใช้งานแบบผู้เยี่ยมชม",
-                alertMissing: "กรุณากรอกอีเมลและรหัสผ่าน",
+                title: "เข้าสู่ระบบ", emailPlaceholder: "อีเมล", passwordPlaceholder: "รหัสผ่าน",
+                emailLogin: "เข้าสู่ระบบ", forgotLink: "ลืมรหัสผ่าน?", google: "เข้าสู่ระบบด้วย Google", 
+                or: "หรือ", guest: "เข้าใช้งานแบบผู้เยี่ยมชม", alertMissing: "กรุณากรอกข้อมูลให้ครบถ้วน",
                 alertError: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
-                // สำหรับลืมรหัสผ่าน
-                forgotTitle: "รีเซ็ตรหัสผ่าน",
-                forgotDesc: "กรุณากรอกอีเมลของคุณเพื่อรับลิงก์สำหรับตั้งรหัสผ่านใหม่",
-                sendReset: "ส่งลิงก์เปลี่ยนรหัสผ่าน",
-                backLogin: "กลับไปหน้าเข้าสู่ระบบ",
+                // ลืมรหัสผ่าน
+                forgotTitle: "รีเซ็ตรหัสผ่าน", forgotDesc: "กรุณากรอกอีเมลของคุณเพื่อรับลิงก์สำหรับตั้งรหัสผ่านใหม่",
+                sendReset: "ส่งลิงก์เปลี่ยนรหัสผ่าน", backLogin: "กลับไปหน้าเข้าสู่ระบบ",
                 alertResetSuccess: "ระบบส่งลิงก์ไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบกล่องจดหมาย",
-                alertResetError: "ไม่สามารถส่งอีเมลได้ กรุณาตรวจสอบอีเมลอีกครั้ง หรืออีเมลนี้อาจยังไม่ได้สมัครสมาชิก"
+                alertResetError: "ไม่สามารถส่งอีเมลได้ กรุณาตรวจสอบอีเมลอีกครั้ง",
+                // สมัครสมาชิก
+                noAccount: "ยังไม่มีบัญชี?", signUpLink: "สมัครสมาชิกที่นี่",
+                regTitle: "สมัครสมาชิก", regDesc: "สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบ",
+                regPassPlaceholder: "รหัสผ่าน (อย่างน้อย 6 ตัว)", regConfirmPlaceholder: "ยืนยันรหัสผ่านอีกครั้ง",
+                regSubmit: "ยืนยันสมัครสมาชิก", alertPassMismatch: "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!",
+                alertRegSuccess: "สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี หรือเข้าสู่ระบบได้เลย",
+                alertRegError: "สมัครสมาชิกไม่สำเร็จ: "
             },
             en: { 
-                title: "Login",
-                emailPlaceholder: "Email",
-                passwordPlaceholder: "Password",
-                emailLogin: "Login",
-                forgotLink: "Forgot Password?",
-                google: "Sign in with Google", 
-                or: "or", 
-                guest: "Continue as Guest",
-                alertMissing: "Please enter your email and password",
+                title: "Login", emailPlaceholder: "Email", passwordPlaceholder: "Password",
+                emailLogin: "Login", forgotLink: "Forgot Password?", google: "Sign in with Google", 
+                or: "or", guest: "Continue as Guest", alertMissing: "Please fill in all fields",
                 alertError: "Invalid email or password",
-                // สำหรับลืมรหัสผ่าน
-                forgotTitle: "Reset Password",
-                forgotDesc: "Please enter your email to receive a password reset link.",
-                sendReset: "Send Reset Link",
-                backLogin: "Back to Login",
+                // Forgot Password
+                forgotTitle: "Reset Password", forgotDesc: "Enter your email to receive a password reset link.",
+                sendReset: "Send Reset Link", backLogin: "Back to Login",
                 alertResetSuccess: "Reset link sent! Please check your inbox.",
-                alertResetError: "Failed to send email. Please check your email address."
+                alertResetError: "Failed to send email. Please check your email address.",
+                // Register
+                noAccount: "Don't have an account?", signUpLink: "Sign up here",
+                regTitle: "Sign Up", regDesc: "Create a new account to access the system",
+                regPassPlaceholder: "Password (min 6 chars)", regConfirmPlaceholder: "Confirm Password",
+                regSubmit: "Create Account", alertPassMismatch: "Passwords do not match!",
+                alertRegSuccess: "Registration successful! Please check your email to verify or login now.",
+                alertRegError: "Registration failed: "
             },
             cn: { 
-                title: "登录",
-                emailPlaceholder: "电子邮件",
-                passwordPlaceholder: "密码",
-                emailLogin: "登录",
-                forgotLink: "忘记密码？",
-                google: "使用 Google 登录", 
-                or: "或", 
-                guest: "作为访客继续",
-                alertMissing: "请输入电子邮件和密码",
+                title: "登录", emailPlaceholder: "电子邮件", passwordPlaceholder: "密码",
+                emailLogin: "登录", forgotLink: "忘记密码？", google: "使用 Google 登录", 
+                or: "或", guest: "作为访客继续", alertMissing: "请填写所有必填项",
                 alertError: "电子邮件或密码无效",
-                // สำหรับลืมรหัสผ่าน
-                forgotTitle: "重置密码",
-                forgotDesc: "请输入您的电子邮件以接收密码重置链接。",
-                sendReset: "发送重置链接",
-                backLogin: "返回登录",
+                // Forgot Password
+                forgotTitle: "重置密码", forgotDesc: "请输入您的电子邮件以接收密码重置链接。",
+                sendReset: "发送重置链接", backLogin: "返回登录",
                 alertResetSuccess: "重置链接已发送！请检查您的收件箱。",
-                alertResetError: "发送邮件失败，请检查您的电子邮件地址。"
+                alertResetError: "发送邮件失败，请检查您的电子邮件地址。",
+                // Register
+                noAccount: "还没有账号？", signUpLink: "点击这里注册",
+                regTitle: "注册", regDesc: "创建一个新帐户以访问系统",
+                regPassPlaceholder: "密码（至少 6 个字符）", regConfirmPlaceholder: "确认密码",
+                regSubmit: "确认注册", alertPassMismatch: "两次输入的密码不一致！",
+                alertRegSuccess: "注册成功！请检查您的电子邮件进行验证，或直接登录。",
+                alertRegError: "注册失败： "
             }
         };
 
@@ -170,6 +197,8 @@
             document.getElementById("passwordInput").placeholder = translations[lang].passwordPlaceholder;
             document.getElementById("btnEmailLoginText").innerText = translations[lang].emailLogin;
             document.getElementById("forgotPasswordLink").innerText = translations[lang].forgotLink;
+            document.getElementById("noAccountText").innerText = translations[lang].noAccount;
+            document.getElementById("signUpLinkText").innerText = translations[lang].signUpLink;
             document.getElementById("btnGoogleText").innerText = translations[lang].google;
             document.getElementById("orText").innerText = translations[lang].or;
             document.getElementById("btnGuestText").innerText = translations[lang].guest;
@@ -179,16 +208,29 @@
             document.getElementById("forgotDescText").innerText = translations[lang].forgotDesc;
             document.getElementById("resetEmailInput").placeholder = translations[lang].emailPlaceholder;
             document.getElementById("btnSendResetText").innerText = translations[lang].sendReset;
-            document.getElementById("btnBackLoginText").innerText = translations[lang].backLogin;
+            document.getElementById("btnBackLoginText1").innerText = translations[lang].backLogin;
+
+            // หน้าสมัครสมาชิก
+            document.getElementById("regTitleText").innerText = translations[lang].regTitle;
+            document.getElementById("regDescText").innerText = translations[lang].regDesc;
+            document.getElementById("regEmailInput").placeholder = translations[lang].emailPlaceholder;
+            document.getElementById("regPasswordInput").placeholder = translations[lang].regPassPlaceholder;
+            document.getElementById("regConfirmPasswordInput").placeholder = translations[lang].regConfirmPlaceholder;
+            document.getElementById("btnRegSubmitText").innerText = translations[lang].regSubmit;
+            document.getElementById("btnBackLoginText2").innerText = translations[lang].backLogin;
         }
 
-        // 2. ฟังก์ชันสลับหน้าจอ (Login <-> Forgot Password)
+        // 2. ฟังก์ชันสลับหน้าจอ (Login <-> Forgot <-> Register)
         function toggleView(view) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('forgotSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'none';
+
             if (view === 'forgot') {
-                document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('forgotSection').style.display = 'block';
+            } else if (view === 'register') {
+                document.getElementById('registerSection').style.display = 'block';
             } else {
-                document.getElementById('forgotSection').style.display = 'none';
                 document.getElementById('loginSection').style.display = 'block';
             }
         }
@@ -198,7 +240,11 @@
         const mySupabaseKey = 'sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen'; 
         const supabaseAuthClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        // 4. ล็อคอินด้วย Email
+        // ==========================================
+        // ฟังก์ชันระบบสมาชิก
+        // ==========================================
+
+        // เข้าสู่ระบบด้วย Email
         async function loginWithEmail() {
             const email = document.getElementById("emailInput").value.trim();
             const password = document.getElementById("passwordInput").value.trim();
@@ -210,8 +256,7 @@
             }
 
             const { data, error } = await supabaseAuthClient.auth.signInWithPassword({
-                email: email,
-                password: password,
+                email: email, password: password,
             });
 
             if (error) {
@@ -222,7 +267,41 @@
             }
         }
 
-        // 5. ส่งอีเมลรีเซ็ตรหัสผ่าน
+        // สมัครสมาชิกใหม่ (Register)
+        async function registerWithEmail() {
+            const email = document.getElementById("regEmailInput").value.trim();
+            const password = document.getElementById("regPasswordInput").value.trim();
+            const confirmPass = document.getElementById("regConfirmPasswordInput").value.trim();
+            const lang = document.getElementById("langSelect").value;
+
+            if (!email || !password || !confirmPass) {
+                alert(translations[lang].alertMissing);
+                return;
+            }
+
+            if (password !== confirmPass) {
+                alert(translations[lang].alertPassMismatch);
+                return;
+            }
+
+            const { data, error } = await supabaseAuthClient.auth.signUp({
+                email: email, password: password,
+            });
+
+            if (error) {
+                console.error("Register Error:", error.message);
+                alert(translations[lang].alertRegError + error.message);
+            } else {
+                alert(translations[lang].alertRegSuccess);
+                // เคลียร์ฟอร์มและเด้งกลับหน้าล็อคอิน
+                document.getElementById("regEmailInput").value = "";
+                document.getElementById("regPasswordInput").value = "";
+                document.getElementById("regConfirmPasswordInput").value = "";
+                toggleView('login');
+            }
+        }
+
+        // ส่งอีเมลรีเซ็ตรหัสผ่าน
         async function sendResetEmail() {
             const email = document.getElementById("resetEmailInput").value.trim();
             const lang = document.getElementById("langSelect").value;
@@ -232,9 +311,7 @@
                 return;
             }
 
-            // ส่งคำขอรีเซ็ตรหัสผ่านไปยัง Supabase
             const { data, error } = await supabaseAuthClient.auth.resetPasswordForEmail(email, {
-                // เปลี่ยนเป็นลิงก์หน้าสร้างรหัสใหม่ของคุณในอนาคตได้ (ตอนนี้ใส่หน้า index ไปก่อน)
                 redirectTo: 'https://museum-ai-guide.wasmer.app/index.html',
             });
 
@@ -243,22 +320,20 @@
                 alert(translations[lang].alertResetError);
             } else {
                 alert(translations[lang].alertResetSuccess);
-                document.getElementById("resetEmailInput").value = ""; // เคลียร์ช่องพิมพ์
-                toggleView('login'); // เด้งกลับหน้าล็อคอิน
+                document.getElementById("resetEmailInput").value = "";
+                toggleView('login');
             }
         }
 
-        // 6. ล็อคอินด้วย Google
+        // เข้าสู่ระบบด้วย Google
         async function loginWithGoogle() {
             await supabaseAuthClient.auth.signInWithOAuth({
                 provider: 'google',
-                options: {
-                    redirectTo: 'https://museum-ai-guide.wasmer.app/index.html'
-                }
+                options: { redirectTo: 'https://museum-ai-guide.wasmer.app/index.html' }
             });
         }
 
-        // 7. ล็อคอินแบบ Guest
+        // เข้าสู่ระบบแบบ Guest
         function loginAsGuest() {
             localStorage.setItem('guestMode', 'true');
             window.location.href = 'index.html';
