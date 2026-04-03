@@ -10,11 +10,66 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="check-auth.js"></script>
+
+    <style>
+        :root {
+            --color-dark: #0C2B4E;    /* สีกรมท่าเข้มสุด (พื้นหลังหลัก) */
+            --color-main: #1A3D64;    /* สีกรมท่า (แถบเมนู, ปุ่มหลัก, แชทผู้ใช้) */
+            --color-accent: #1D546C;  /* สีฟ้าอมเขียว (ส่วนสแกน QR, ปุ่มสแกน) */
+            --color-light: #F4F4F4;   /* สีเทาอ่อน (กล่องการ์ด, ข้อความบนพื้นเข้ม) */
+        }
+
+        body {
+            background-color: var(--color-dark);
+            color: var(--color-light);
+        }
+
+        .custom-navbar, .custom-footer, .custom-contact {
+            background-color: var(--color-main) !important;
+        }
+
+        .custom-qr-section {
+            background-color: var(--color-accent) !important;
+        }
+
+        .main-card {
+            background-color: var(--color-light) !important;
+            color: var(--color-dark) !important;
+        }
+
+        /* ปรับสีปุ่ม ค้นหา และ ส่ง (Primary) */
+        .btn-primary {
+            background-color: var(--color-main);
+            border-color: var(--color-main);
+            color: var(--color-light);
+        }
+        .btn-primary:hover {
+            background-color: var(--color-dark);
+            border-color: var(--color-dark);
+        }
+
+        /* ปรับสีปุ่ม Scan QR (Success) */
+        .btn-success {
+            background-color: var(--color-accent);
+            border-color: var(--color-accent);
+            color: var(--color-light);
+        }
+        .btn-success:hover {
+            background-color: #154053; /* ดรอปสีให้เข้มขึ้นตอนเอาเมาส์ชี้ */
+            border-color: #154053;
+        }
+
+        /* สีแชทฝั่งคนถาม */
+        .chat-user {
+            background-color: var(--color-main);
+            color: var(--color-light);
+        }
+    </style>
 </head>
 
-<body class="d-flex flex-column min-vh-100 bg-dark">
+<body class="d-flex flex-column min-vh-100">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-black shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">🏛️ Museum AI</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -28,7 +83,7 @@
                 </ul>
                 <div class="d-flex align-items-center mt-3 mt-lg-0">
                     <span id="user-display" class="text-light me-3 small">กำลังโหลด...</span>
-                    <button onclick="logout()" class="btn btn-outline-danger btn-sm me-3">ออกจากระบบ</button>
+                    <button onclick="logout()" class="btn btn-outline-light btn-sm me-3">ออกจากระบบ</button>
                     <select class="form-select form-select-sm w-auto" id="languageSelect">
                         <option value="th">TH</option>
                         <option value="en">EN</option>
@@ -43,15 +98,15 @@
 
         <section id="home" class="container d-flex flex-column align-items-center justify-content-center py-4 py-md-5">
             
-            <div class="text-center text-white mb-4 w-100">
-                <h1 class="fw-bold" style="font-size: 2.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Museum AI Guide</h1>
-                <p id="subTitle" class="lead text-light">นิทรรศการดิจิทัลอัจฉริยะ</p>
+            <div class="text-center mb-4 w-100" style="color: var(--color-light);">
+                <h1 class="fw-bold" style="font-size: 2.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">Museum AI Guide</h1>
+                <p id="subTitle" class="lead" style="color: #d1d5db;">นิทรรศการดิจิทัลอัจฉริยะ</p>
             </div>
 
-            <div class="main-card bg-white text-dark p-3 p-md-4 rounded-4 shadow-lg w-100" style="max-width: 450px;">
+            <div class="main-card p-3 p-md-4 rounded-4 shadow-lg w-100" style="max-width: 450px;">
                 
                 <div class="mb-4">
-                    <input type="text" id="artworkId" class="form-control form-control-lg mb-2" placeholder="ใส่รหัสผลงาน">
+                    <input type="text" id="artworkId" class="form-control form-control-lg mb-2" placeholder="ใส่รหัสผลงาน" style="border-color: #ccc;">
                     <div class="d-flex gap-2">
                         <button id="searchBtn" class="btn btn-primary flex-fill fw-bold">🔍 ค้นหา</button>
                         <button id="scanBtn" class="btn btn-success flex-fill fw-bold">📷 Scan QR</button>
@@ -59,42 +114,42 @@
                 </div>
 
                 <div id="result" class="text-center mt-3" style="display:none;">
-                    <hr>
+                    <hr style="border-color: #ccc;">
                     <img id="image" class="img-fluid rounded mb-3 shadow-sm">
-                    <h3 id="title" class="fw-bold"></h3>
-                    <h6 id="artist" class="text-muted"></h6>
-                    <p id="description" class="text-start mt-3 p-3 bg-light rounded border"></p>
+                    <h3 id="title" class="fw-bold" style="color: var(--color-dark);"></h3>
+                    <h6 id="artist" style="color: var(--color-main);"></h6>
+                    <p id="description" class="text-start mt-3 p-3 rounded border" style="background-color: #ffffff; color: var(--color-dark); border-color: #e5e5e5;"></p>
                 </div>
 
                 <div id="error" class="text-danger mt-3 text-center fw-bold"></div>
 
-                <hr class="my-4">
+                <hr class="my-4" style="border-color: #ccc;">
 
                 <div class="text-center mb-3">
-                    <h5 class="fw-bold mb-0 text-primary">🤖 AI Chatbot</h5>
+                    <h5 class="fw-bold mb-0" style="color: var(--color-main);">🤖 AI Chatbot</h5>
                 </div>
                 
-                <div id="chatBox" class="border rounded p-3 mb-3 shadow-sm bg-light" style="height:250px; overflow-y:auto; font-size: 0.95rem;"></div>
+                <div id="chatBox" class="border rounded p-3 mb-3 shadow-sm" style="height:250px; overflow-y:auto; font-size: 0.95rem; background-color: #ffffff; border-color: #ccc;"></div>
                 
                 <div class="input-group">
-                    <input type="text" id="userInput" class="form-control" placeholder="พิมพ์คำถาม...">
+                    <input type="text" id="userInput" class="form-control" placeholder="พิมพ์คำถาม..." style="border-color: #ccc;">
                     <button class="btn btn-primary fw-bold" onclick="sendMessage()">ส่ง</button>
                 </div>
 
             </div>
         </section>
 
-        <section id="qr-section" class="py-5 text-center text-white border-top border-secondary" style="background: rgba(255,255,255,0.05);">
+        <section id="qr-section" class="py-5 text-center text-white custom-qr-section shadow-sm">
             <div class="container">
                 <h3 class="fw-bold mb-4">📱 สแกนเพื่อเข้าใช้งานบนมือถือ</h3>
-                <div class="bg-white p-3 rounded-4 d-inline-block shadow-lg">
+                <div class="bg-white p-3 rounded-4 d-inline-block shadow">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://museum-ai-guide.wasmer.app/index.html" alt="QR Code" class="img-fluid rounded">
                     <p class="mt-2 text-dark mb-0 fw-bold">Scan Me</p>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="py-5 text-center text-white bg-black">
+        <section id="contact" class="py-5 text-center text-white custom-contact">
             <div class="container">
                 <h3 class="fw-bold mb-4">📞 ติดต่อเรา (Contact)</h3>
                 <p class="mb-1"><strong>Email:</strong> admin@museum-ai.com</p>
@@ -105,7 +160,7 @@
 
     </main>
 
-    <footer class="bg-black text-white text-center py-3 mt-auto border-top border-secondary">
+    <footer class="text-white text-center py-3 mt-auto custom-footer border-top" style="border-color: rgba(255,255,255,0.1) !important;">
         <div class="container">
             <p class="mb-0 small">&copy; 2026 Museum AI Guide | จัดทำโดย <strong>[ใส่ชื่อของคุณที่นี่]</strong></p>
         </div>
@@ -253,13 +308,14 @@
         if(!message) return;
 
         const chatBox = document.getElementById("chatBox");
-        chatBox.innerHTML += `<div class="text-end mb-2"><span class="bg-primary text-white p-2 rounded-3 d-inline-block">${escapeHtml(message)}</span></div>`;
+        // อัปเดตสีพื้นหลังบอลลูนแชทคนถาม ให้ดึงจาก CSS
+        chatBox.innerHTML += `<div class="text-end mb-2"><span class="chat-user p-2 rounded-3 d-inline-block shadow-sm">${escapeHtml(message)}</span></div>`;
         input.value = "";
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try{
             const reply = await AISystem.chat(message,currentLanguage);
-            chatBox.innerHTML += `<div class="text-start mb-2"><span class="bg-white border p-2 rounded-3 d-inline-block text-dark"><b>AI:</b> ${escapeHtml(reply)}</span></div>`;
+            chatBox.innerHTML += `<div class="text-start mb-2"><span class="bg-white border p-2 rounded-3 d-inline-block text-dark shadow-sm" style="border-color:#ccc;"><b>AI:</b> ${escapeHtml(reply)}</span></div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
         }catch(e){
             chatBox.innerHTML += `<div class="text-center text-danger small mt-2">เกิดข้อผิดพลาดในการเชื่อมต่อ AI</div>`;
