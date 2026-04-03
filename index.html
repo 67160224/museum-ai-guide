@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="style.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="check-auth.js"></script>
 
 </head>
 
@@ -101,50 +102,24 @@
 <script src="js/ai-voice.js"></script>
 
 <script>
-
 // =========================
 // GLOBAL
 // =========================
-
 let currentLanguage = "th";
 let currentArtworkData = null;
 
 // =========================
 // LANGUAGE
 // =========================
-
 const translations = {
-
-    th:{
-        subTitle:"นิทรรศการดิจิทัลอัจฉริยะ",
-        placeholder:"ใส่รหัสผลงาน",
-        search:"🔍 ค้นหา",
-        scan:"📷 Scan QR",
-        alert:"กรุณาใส่รหัสผลงาน"
-    },
-
-    en:{
-        subTitle:"Smart Digital Exhibition",
-        placeholder:"Enter artwork ID",
-        search:"🔍 Search",
-        scan:"📷 Scan QR",
-        alert:"Please enter artwork ID"
-    },
-
-    cn:{
-        subTitle:"智能数字展览",
-        placeholder:"请输入作品编号",
-        search:"🔍 搜索",
-        scan:"📷 扫描二维码",
-        alert:"请输入作品编号"
-    }
-
+    th:{ subTitle:"นิทรรศการดิจิทัลอัจฉริยะ", placeholder:"ใส่รหัสผลงาน", search:"🔍 ค้นหา", scan:"📷 Scan QR", alert:"กรุณาใส่รหัสผลงาน" },
+    en:{ subTitle:"Smart Digital Exhibition", placeholder:"Enter artwork ID", search:"🔍 Search", scan:"📷 Scan QR", alert:"Please enter artwork ID" },
+    cn:{ subTitle:"智能数字展览", placeholder:"请输入作品编号", search:"🔍 搜索", scan:"📷 扫描二维码", alert:"请输入作品编号" }
 };
 
 // =========================
 // INIT
 // =========================
-
 document.getElementById("languageSelect").addEventListener("change",function(){
     currentLanguage = this.value;
     changeLanguage();
@@ -165,37 +140,20 @@ document.getElementById("userInput").addEventListener("keypress",function(e){
 // =========================
 // CHANGE LANGUAGE
 // =========================
-
 function changeLanguage(){
-
-    document.getElementById("subTitle").innerText =
-        translations[currentLanguage].subTitle;
-
-    document.getElementById("artworkId").placeholder =
-        translations[currentLanguage].placeholder;
-
-    document.getElementById("searchBtn").innerText =
-        translations[currentLanguage].search;
-
-    document.getElementById("scanBtn").innerText =
-        translations[currentLanguage].scan;
-
+    document.getElementById("subTitle").innerText = translations[currentLanguage].subTitle;
+    document.getElementById("artworkId").placeholder = translations[currentLanguage].placeholder;
+    document.getElementById("searchBtn").innerText = translations[currentLanguage].search;
+    document.getElementById("scanBtn").innerText = translations[currentLanguage].scan;
     document.getElementById("error").innerText = "";
-
-    if(currentArtworkData){
-        displayArtwork(currentArtworkData);
-    }
-
+    if(currentArtworkData){ displayArtwork(currentArtworkData); }
 }
 
 // =========================
 // SEARCH
 // =========================
-
 function searchArtwork(){
-
     let id = document.getElementById("artworkId").value.trim();
-
     document.getElementById("error").innerText = "";
     document.getElementById("result").style.display = "none";
 
@@ -205,105 +163,69 @@ function searchArtwork(){
     }
 
     fetch("https://museum-ai-guide.wasmer.app/api/artwork.php?id=" + id)
-
     .then(res => res.json())
-
     .then(data => {
-
         if(data.error){
             document.getElementById("error").innerText = data.error;
             return;
         }
-
         currentArtworkData = data;
         displayArtwork(data);
 
-        // 🔊 ให้ ai-voice ทำงานอัตโนมัติ
         setTimeout(()=>{
-            if(typeof playTTS === "function"){
-                playTTS(getVoiceLang());
-            }
+            if(typeof playTTS === "function"){ playTTS(getVoiceLang()); }
         },800);
 
-        // scroll ลง
         setTimeout(()=>{
-            document.getElementById("result").scrollIntoView({
-                behavior:"smooth"
-            });
+            document.getElementById("result").scrollIntoView({ behavior:"smooth" });
         },200);
-
     })
-
     .catch(()=>{
         document.getElementById("error").innerText = "โหลดข้อมูลไม่สำเร็จ";
     });
-
 }
 
 // =========================
 // DISPLAY
 // =========================
-
 function displayArtwork(data){
-
     document.getElementById("image").src = data.image_url || "";
     document.getElementById("title").innerText = data.title || "-";
     document.getElementById("artist").innerText = data.artist || "-";
 
     let desc = "";
+    if(currentLanguage === "th"){ desc = data.description_th; }
+    else if(currentLanguage === "en"){ desc = data.description_en; }
+    else{ desc = data.description_cn; }
 
-    if(currentLanguage === "th"){
-        desc = data.description_th;
-    }
-    else if(currentLanguage === "en"){
-        desc = data.description_en;
-    }
-    else{
-        desc = data.description_cn;
-    }
-
-    if(!desc || desc.trim() === ""){
-        desc = "ไม่มีคำอธิบาย";
-    }
-
+    if(!desc || desc.trim() === ""){ desc = "ไม่มีคำอธิบาย"; }
     document.getElementById("description").innerText = desc;
     document.getElementById("result").style.display = "block";
-
 }
 
 // =========================
 // QR AUTO LOAD
 // =========================
-
 const params = new URLSearchParams(window.location.search);
 const idFromQR = params.get("id");
 
 if(idFromQR){
-
     document.getElementById("artworkId").value = idFromQR;
-
-    setTimeout(()=>{
-        searchArtwork();
-    },300);
-
+    setTimeout(()=>{ searchArtwork(); },300);
 }
 
 // =========================
 // VOICE LANG
 // =========================
-
 function getVoiceLang(){
-
     if(currentLanguage === "th") return "th-TH";
     if(currentLanguage === "en") return "en-US";
     return "zh-CN";
-
 }
 
 // =========================
 // CHAT
 // =========================
-
 function escapeHtml(text){
     const div = document.createElement("div");
     div.innerText = text;
@@ -311,33 +233,23 @@ function escapeHtml(text){
 }
 
 async function sendMessage(){
-
     const input = document.getElementById("userInput");
     const message = input.value.trim();
     if(!message) return;
 
     const chatBox = document.getElementById("chatBox");
-
     chatBox.innerHTML += `<div><b>คุณ:</b> ${escapeHtml(message)}</div>`;
-
     input.value = "";
 
     try{
         const reply = await AISystem.chat(message,currentLanguage);
-
         chatBox.innerHTML += `<div><b>AI:</b> ${escapeHtml(reply)}</div>`;
-
         chatBox.scrollTop = chatBox.scrollHeight;
-
     }catch(e){
         chatBox.innerHTML += `<div style="color:red;">AI Error</div>`;
     }
-
 }
-
 </script>
-
-<script src="check-auth.js"></script>
 
 </body>
 </html>
