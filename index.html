@@ -12,9 +12,9 @@
     <script src="check-auth.js"></script>
 </head>
 
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="d-flex flex-column min-vh-100 bg-dark">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">🏛️ Museum AI</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -39,16 +39,16 @@
         </div>
     </nav>
 
-    <main class="flex-grow-1 py-4">
+    <main class="flex-grow-1">
 
-        <section id="home" class="container wrapper">
+        <section id="home" class="container d-flex flex-column align-items-center justify-content-center py-4 py-md-5">
             
-            <div class="text-center text-dark mb-4">
-                <h1 class="fw-bold" style="font-size: 2.5rem;">Museum AI Guide</h1>
-                <p id="subTitle" class="lead text-secondary">นิทรรศการดิจิทัลอัจฉริยะ</p>
+            <div class="text-center text-white mb-4 w-100">
+                <h1 class="fw-bold" style="font-size: 2.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Museum AI Guide</h1>
+                <p id="subTitle" class="lead text-light">นิทรรศการดิจิทัลอัจฉริยะ</p>
             </div>
 
-            <div class="main-card bg-white p-3 p-md-4 rounded shadow-sm mx-auto" style="max-width: 500px;">
+            <div class="main-card bg-white text-dark p-3 p-md-4 rounded-4 shadow-lg w-100" style="max-width: 450px;">
                 
                 <div class="mb-4">
                     <input type="text" id="artworkId" class="form-control form-control-lg mb-2" placeholder="ใส่รหัสผลงาน">
@@ -58,12 +58,12 @@
                     </div>
                 </div>
 
-                <div id="result" class="text-center mt-4" style="display:none;">
+                <div id="result" class="text-center mt-3" style="display:none;">
                     <hr>
                     <img id="image" class="img-fluid rounded mb-3 shadow-sm">
                     <h3 id="title" class="fw-bold"></h3>
                     <h6 id="artist" class="text-muted"></h6>
-                    <p id="description" class="text-start mt-3 p-3 bg-light rounded"></p>
+                    <p id="description" class="text-start mt-3 p-3 bg-light rounded border"></p>
                 </div>
 
                 <div id="error" class="text-danger mt-3 text-center fw-bold"></div>
@@ -71,7 +71,7 @@
                 <hr class="my-4">
 
                 <div class="text-center mb-3">
-                    <h5 class="fw-bold mb-0">🤖 AI Chatbot</h5>
+                    <h5 class="fw-bold mb-0 text-primary">🤖 AI Chatbot</h5>
                 </div>
                 
                 <div id="chatBox" class="border rounded p-3 mb-3 shadow-sm bg-light" style="height:250px; overflow-y:auto; font-size: 0.95rem;"></div>
@@ -84,17 +84,17 @@
             </div>
         </section>
 
-        <section id="qr-section" class="py-5 text-center text-dark mt-5 bg-white border-top">
+        <section id="qr-section" class="py-5 text-center text-white border-top border-secondary" style="background: rgba(255,255,255,0.05);">
             <div class="container">
                 <h3 class="fw-bold mb-4">📱 สแกนเพื่อเข้าใช้งานบนมือถือ</h3>
-                <div class="bg-light p-3 rounded-4 d-inline-block shadow-sm border">
+                <div class="bg-white p-3 rounded-4 d-inline-block shadow-lg">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://museum-ai-guide.wasmer.app/index.html" alt="QR Code" class="img-fluid rounded">
                     <p class="mt-2 text-dark mb-0 fw-bold">Scan Me</p>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="py-5 text-center text-white bg-dark">
+        <section id="contact" class="py-5 text-center text-white bg-black">
             <div class="container">
                 <h3 class="fw-bold mb-4">📞 ติดต่อเรา (Contact)</h3>
                 <p class="mb-1"><strong>Email:</strong> admin@museum-ai.com</p>
@@ -105,7 +105,7 @@
 
     </main>
 
-    <footer class="bg-black text-white text-center py-3 mt-auto">
+    <footer class="bg-black text-white text-center py-3 mt-auto border-top border-secondary">
         <div class="container">
             <p class="mb-0 small">&copy; 2026 Museum AI Guide | จัดทำโดย <strong>[ใส่ชื่อของคุณที่นี่]</strong></p>
         </div>
@@ -255,8 +255,6 @@
         const chatBox = document.getElementById("chatBox");
         chatBox.innerHTML += `<div class="text-end mb-2"><span class="bg-primary text-white p-2 rounded-3 d-inline-block">${escapeHtml(message)}</span></div>`;
         input.value = "";
-
-        // Scroll to bottom immediately after user sends message
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try{
