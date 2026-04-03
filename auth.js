@@ -1,11 +1,9 @@
-// 1. ใส่ค่าของโปรเจคคุณ
-const supabaseUrl = 'https://poderwfuvejrsrqydcbj.supabase.co' ;
-const supabaseKey = 'sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+var mySupabaseUrl = 'https://poderwfuvejrsrqydcbj.supabase.co';
+var mySupabaseKey = 'sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen';
+var supabaseClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
 let isLoginMode = true;
 
-// 2. ฟังก์ชันสลับหน้าระหว่าง Login กับ Register (สำหรับอีเมล)
 function toggleMode() {
     isLoginMode = !isLoginMode;
     document.getElementById('form-title').innerText = isLoginMode ? "เข้าสู่ระบบ" : "สมัครสมาชิก";
@@ -14,7 +12,6 @@ function toggleMode() {
     document.getElementById('message').innerText = "";
 }
 
-// 3. ฟังก์ชันล็อคอิน/สมัครสมาชิก ด้วย Email
 async function handleAuth() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -30,7 +27,7 @@ async function handleAuth() {
     messageEl.style.color = "blue";
 
     if (isLoginMode) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
             messageEl.innerText = "เข้าสู่ระบบไม่สำเร็จ: " + error.message;
             messageEl.style.color = "red";
@@ -40,7 +37,7 @@ async function handleAuth() {
             setTimeout(() => { window.location.href = "index.html"; }, 1000);
         }
     } else {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
         if (error) {
             messageEl.innerText = "สมัครสมาชิกไม่สำเร็จ: " + error.message;
             messageEl.style.color = "red";
@@ -52,17 +49,13 @@ async function handleAuth() {
     }
 }
 
-// 4. ฟังก์ชันล็อคอินด้วย Google
 async function loginWithGoogle() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
     });
 }
 
-// 5. ฟังก์ชันเข้าใช้งานแบบไม่ล็อคอิน (Guest Mode)
 function continueAsGuest() {
-    // เซฟสถานะลงเบราว์เซอร์ว่าเป็น Guest
     localStorage.setItem('guestMode', 'true');
-    // ส่งไปหน้าหลักทันที
     window.location.href = "index.html";
 }
