@@ -16,6 +16,8 @@
         .btn-email:hover { background-color: #0056b3; }
         .btn-google { background-color: #db4437; }
         .btn-google:hover { background-color: #c23321; }
+        .btn-guest { background-color: #6c757d; }
+        .btn-guest:hover { background-color: #5a6268; }
         
         .divider { margin: 20px 0; border-bottom: 1px solid #ddd; position: relative; }
         .divider span { background: white; padding: 0 10px; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: #777; font-size: 14px; }
@@ -37,6 +39,8 @@
     <div class="divider"><span>หรือ</span></div>
     
     <button class="btn-google" onclick="loginWithGoogle()">เข้าสู่ระบบด้วย Google</button>
+    
+    <button class="btn-guest" onclick="continueAsGuest()">เข้าใช้งานโดยไม่ล็อคอิน</button>
     
     <p id="message"></p>
 </div>
