@@ -1,43 +1,57 @@
-// ใช้ var และเปลี่ยนชื่อตัวแปรเป็น supabaseAuthClient เพื่อไม่ให้ชื่อซ้ำกับไฟล์อื่น
-var mySupabaseUrl = 'https://poderwfuvejrsrqydcbj.supabase.co';
-var mySupabaseKey = 'sb_publishable_3FtM0O9-55E0OM_Xl7gJ4g_Wlp_NXen';
-var supabaseAuthClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+// ==========================================
+// check-auth.js: ระบบตรวจสอบสิทธิ์การเข้าใช้งาน
+// ==========================================
 
-// ฟังก์ชันตรวจสอบว่าผู้ใช้ล็อคอินหรือยัง
 async function checkUser() {
-    // สังเกตว่าเราใช้ supabaseAuthClient แทนคำว่า supabase เฉยๆ แล้ว
-    const { data: { session } } = await supabaseAuthClient.auth.getSession();
+    // 1. ตรวจสอบ Session จาก Supabase (ใช้ตัวแปร supabase จาก config.js)
+    const { data: { session } } = await supabase.auth.getSession();
     
-    // ดึงข้อมูลว่าเคยกดปุ่มเข้าแบบ Guest ไว้หรือเปล่า
+    // 2. ตรวจสอบสถานะ Guest จาก LocalStorage
     const isGuest = localStorage.getItem('guestMode');
     
+    // อ้างอิง Element ที่จะแสดงชื่อผู้ใช้ (ถ้ามี)
+    const userDisplay = document.getElementById("user-display");
+
+    // --- กรณีที่ 1: ไม่ได้ล็อคอิน และ ไม่ได้เข้าแบบ Guest ---
     if (!session && !isGuest) {
-        // ถ้ายังไม่ได้ล็อคอิน และไม่ได้เข้าแบบ Guest ให้เด้งกลับไปหน้า login ทันที
-        window.location.href = "login.html";
-    } else if (session) {
-        // กรณีล็อคอินสำเร็จ
-        console.log("ยินดีต้อนรับ:", session.user.email);
-        const userDisplay = document.getElementById("user-display");
-        if(userDisplay) {
+        // ถ้าหน้าปัจจุบันไม่ใช่หน้า login, register หรือ forgot-password ให้เด้งไปหน้า login
+        const currentPage = window.location.pathname;
+        if (!currentPage.includes("login.html") && 
+            !currentPage.includes("register.html") && 
+            !currentPage.includes("forgot-password.html") &&
+            !currentPage.includes("update-password.html")) {
+            window.location.href = "login.html";
+        }
+    } 
+    
+    // --- กรณีที่ 2: มีการล็อคอินจริง (Supabase Auth) ---
+    else if (session) {
+        console.log("เข้าใช้งานโดย:", session.user.email);
+        if (userDisplay) {
             userDisplay.innerText = session.user.email;
         }
-        localStorage.removeItem('guestMode'); // ล้างสถานะ Guest เผื่อเคยใช้ไว้
-    } else if (isGuest) {
-        // กรณีเข้าใช้งานแบบ Guest
-        console.log("ยินดีต้อนรับ: ผู้เยี่ยมชม");
-        const userDisplay = document.getElementById("user-display");
-        if(userDisplay) {
+        // ล้างค่า guestMode ทิ้งเพราะมีการล็อคอินจริงแล้ว
+        localStorage.removeItem('guestMode');
+    } 
+    
+    // --- กรณีที่ 3: เข้าใช้งานแบบผู้เยี่ยมชม (Guest Mode) ---
+    else if (isGuest) {
+        console.log("เข้าใช้งานโดย: ผู้เยี่ยมชม");
+        if (userDisplay) {
             userDisplay.innerText = "ผู้เยี่ยมชม (Guest)";
         }
     }
 }
 
-// ฟังก์ชันออกจากระบบ
+// ฟังก์ชันสำหรับออกจากระบบ
 async function logout() {
-    await supabaseAuthClient.auth.signOut();
-    localStorage.removeItem('guestMode'); // ล้างสถานะ Guest ด้วย
-    window.location.href = "login.html"; // เด้งไปหน้าล็อคอิน
+    // ออกจากระบบ Supabase
+    await supabase.auth.signOut();
+    // ล้างสถานะ Guest
+    localStorage.removeItem('guestMode');
+    // เด้งกลับไปหน้า Login
+    window.location.href = "login.html";
 }
 
-// สั่งให้ทำงานทันทีที่โหลดหน้าเว็บ
+// สั่งให้ตรวจสอบทันทีที่โหลดไฟล์นี้
 checkUser();
